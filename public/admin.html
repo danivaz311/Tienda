@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Panel de Administrador</title>
+</head>
+<body>
+  <h1>Panel de Administración 📚</h1>
+
+  <div id="bienvenida"></div>
+  <button onclick="cerrarSesion()">Cerrar sesión</button>
+
+  <h2>Agregar Libro</h2>
+  <form id="formLibro">
+    <input type="text" id="titulo" placeholder="Título" required autofocus><br>
+    <input type="text" id="autor" placeholder="Autor" required><br>
+    <input type="number" id="precio" placeholder="Precio" min="0" step="0.01" required><br>
+    <input type="number" id="stock" placeholder="Stock" min="0" step="1" required><br>
+    <button type="submit">Guardar libro</button>
+  </form>
+
+  <div id="mensaje"></div>
+
+<h2>Libros Registrados</h2>
+<div id="listaLibros"></div>
+
+  <script>
+    const token = localStorage.getItem('token');
+    const bienvenida = document.getElementById('bienvenida');
+
+    if (!token) {
+      window.location.href = 'login.html';
+    } else {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      if (payload.rol !== 'admin') {
+        alert('Acceso denegado. Solo administradores.');
+        window.location.href = 'index.html';
+      } else {
+        bienvenida.textContent = `Bienvenido administrador: ${payload.correo}`;
+      }
+    }
+
+    function cerrarSesion() {
+      localStorage.removeItem('token');
+      window.location.href = 'login.html';
+    }
+
+    const form = document.getElementById('formLibro');
+    const mensaje = document.getElementById('mensaje');
+
+    /**************************************************************/
+
+
+    // Cargar libros registrados
+async function cargarLibros() {
+  try {
+    const response = await fetch('/api/books', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    const libros = await response.json();
+    const contenedor = document.getElementById('listaLibros');
+    contenedor.innerHTML = '';
+
+    if (libros.length === 0) {
+      contenedor.textContent = 'No hay libros registrados.';
+      return;
+    }
+
+    libros.forEach(libro => {
+      const div = document.createElement('div');
+      div.innerHTML = `
+        <strong>${libro.titulo}</strong><br>
+        Autor: ${libro.autor}<br>
+        Precio: $${libro.precio}<br>
+        Stock: ${libro.stock}<br>
+        <button onclick="eliminarLibro(${libro.id})">Eliminar</button>
+        <button onclick="editarLibro(${libro.id}, '${libro.titulo}', '${libro.autor}', ${libro.precio}, ${libro.stock})">Editar</button>
+        <hr>
+      `;
+      contenedor.appendChild(div);
+    });
+  } catch (error) {
+    console.error('Error al cargar libros:', error);
+  }
+}
+
+// Eliminar libro
+async function eliminarLibro(id) {
+  if (!confirm('¿Estás seguro de eliminar este libro?')) return;
+
+  try {
+    const response = await fetch(`/api/books/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (response.ok) {
+      alert('Libro eliminado correctamente');
+      cargarLibros();
+    } else {
+      const data = await response.json();
+      alert(data.error || 'Error al eliminar libro');
+    }
+  } catch (error) {
+    console.error('Error al eliminar libro:', error);
+  }
+}
+
+// Preparar edición
+function editarLibro(id, titulo, autor, precio, stock) {
+  document.getElementById('titulo').value = titulo;
+  document.getElementById('autor').value = autor;
+  document.getElementById('precio').value = precio;
+  document.getElementById('stock').value = stock;
+  form.dataset.editando = id;
+  form.querySelector('button[type="submit"]').textContent = 'Actualizar libro';
+}
+
+// Guardar libro nuevo o actualizado
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const titulo = document.getElementById('titulo').value.trim();
+  const autor = document.getElementById('autor').value.trim();
+  const precio = parseFloat(document.getElementById('precio').value);
+  const stock = parseInt(document.getElementById('stock').value);
+  const id = form.dataset.editando;
+
+  if (!titulo || !autor || isNaN(precio) || isNaN(stock)) {
+    mensaje.textContent = 'Por favor completa todos los campos correctamente.';
+    mensaje.style.color = 'red';
+    return;
+  }
+
+  try {
+    const url = id ? `/api/books/${id}` : '/api/books';
+    const method = id ? 'PUT' : 'POST';
+
+    const response = await fetch(url, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ titulo, autor, precio, stock })
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      mensaje.textContent = id ? 'Libro actualizado ✅' : 'Libro agregado ✅';
+      mensaje.style.color = 'green';
+      form.reset();
+      form.dataset.editando = '';
+      form.querySelector('button[type="submit"]').textContent = 'Guardar libro';
+      cargarLibros();
+    } else {
+      mensaje.textContent = data.error || 'Error al guardar el libro';
+      mensaje.style.color = 'red';
+    }
+  } catch (error) {
+    console.error(error);
+    mensaje.textContent = 'Error al conectar con el servidor';
+    mensaje.style.color = 'red';
+  }
+});
+
+// Al cargar, mostrar libros
+cargarLibros();
+
+  </script>
+</body>
+</html>

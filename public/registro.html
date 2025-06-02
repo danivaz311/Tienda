@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registro</title>
+</head>
+<body>
+  <h2>Registrarse</h2>
+  <form id="registroForm">
+    <input type="text" id="nombre" placeholder="Nombre" required><br>
+    <input type="email" id="correo" placeholder="Correo" required><br>
+    <input type="password" id="contrasena" placeholder="Contraseña" required><br>
+    <select id="rol">
+      <option value="cliente">Cliente</option>
+      <option value="admin">Administrador</option>
+    </select><br>
+    <button type="submit">Registrarse</button>
+  </form>
+
+  <div id="mensaje"></div>
+
+  <script>
+    document.getElementById('registroForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Obtención correcta de los valores
+      const nombre = document.getElementById('nombre').value.trim();
+      const correo = document.getElementById('correo').value.trim();
+      const contrasena = document.getElementById('contrasena').value.trim();
+      const rol = document.getElementById('rol').value;
+
+      // Validación antes de enviar los datos
+      if (!nombre || !correo || !contrasena) {
+        document.getElementById('mensaje').textContent = 'Todos los campos son obligatorios';
+        document.getElementById('mensaje').style.color = 'red';
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ nombre, correo, contrasena, rol })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          document.getElementById('mensaje').textContent = 'Registro exitoso 🎉 Ahora inicia sesión.';
+          document.getElementById('mensaje').style.color = 'green';
+
+          // Puedes redirigir al usuario si lo deseas
+          // window.location.href = 'login.html';
+        } else {
+          document.getElementById('mensaje').textContent = data.error || 'Error en el registro';
+          document.getElementById('mensaje').style.color = 'red';
+        }
+      } catch (error) {
+        document.getElementById('mensaje').textContent = 'Error al conectar con el servidor';
+        document.getElementById('mensaje').style.color = 'red';
+        console.error('Error:', error);
+      }
+    });
+  </script>
+</body>
+</html>

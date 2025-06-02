@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Iniciar sesión</title>
+</head>
+<body>
+  <h2>Iniciar sesión</h2>
+  <form id="loginForm">
+    <input type="email" id="correo" placeholder="Correo" required /><br />
+    <input type="password" id="contrasena" placeholder="Contraseña" required /><br />
+    <button type="submit">Iniciar sesión</button>
+  </form>
+
+  <div id="mensaje"></div>
+
+  <script>
+    const form = document.getElementById('loginForm');
+    const mensaje = document.getElementById('mensaje');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const correo = document.getElementById('correo').value;
+      const contrasena = document.getElementById('contrasena').value;
+
+      try {
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ correo, contrasena })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          localStorage.setItem('token', data.token);
+          mensaje.textContent = 'Inicio de sesión exitoso 🎉';
+          mensaje.style.color = 'green';
+
+          // Redirigir a otra página si deseas
+          // window.location.href = 'libros.html';
+        } else {
+          mensaje.textContent = data.error || data.mensaje;
+          mensaje.style.color = 'red';
+        }
+      } catch (error) {
+        mensaje.textContent = 'Error al conectar con el servidor';
+        mensaje.style.color = 'red';
+        console.error(error);
+      }
+    });
+  </script>
+</body>
+</html>

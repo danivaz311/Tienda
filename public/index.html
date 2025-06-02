@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tienda de Libros</title>
+</head>
+<body>
+  <h1>Tienda de Libros 📚</h1>
+  <div id="bienvenida"></div>
+  <div id="libros"></div>
+
+  <script>
+    // Mostrar bienvenida si hay token
+    const token = localStorage.getItem('token');
+    const bienvenida = document.getElementById('bienvenida');
+    if (token) {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      bienvenida.textContent = `Bienvenido, ${payload.correo} (${payload.rol})`;
+    }
+
+    // Mostrar libros en pantalla
+    function mostrarLibros(libros) {
+      const contenedor = document.getElementById('libros');
+      contenedor.innerHTML = '';
+
+      libros.forEach(libro => {
+        const div = document.createElement('div');
+        div.innerHTML = `
+          <strong>${libro.titulo}</strong><br>
+          Autor: ${libro.autor}<br>
+          Precio: $${libro.precio}<br>
+          <button onclick="agregarAlCarrito(${libro.id}, '${libro.titulo}', ${libro.precio})">
+            Agregar al carrito
+          </button>
+          <hr>
+        `;
+        contenedor.appendChild(div);
+      });
+    }
+
+    // Obtener libros del backend
+    async function cargarLibros() {
+      try {
+        const response = await fetch('/api/books');
+        const libros = await response.json();
+        mostrarLibros(libros);
+      } catch (error) {
+        console.error('Error al cargar libros:', error);
+      }
+    }
+
+    // Agregar libro al carrito
+    function agregarAlCarrito(id, titulo, precio) {
+      let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+      const existente = carrito.find(item => item.id === id);
+      if (existente) {
+        existente.cantidad += 1;
+      } else {
+        carrito.push({ id, titulo, precio, cantidad: 1 });
+      }
+      localStorage.setItem('carrito', JSON.stringify(carrito));
+      alert(`✅ "${titulo}" agregado al carrito.`);
+    }
+
+    cargarLibros();
+  </script>
+</body>
+</html>
