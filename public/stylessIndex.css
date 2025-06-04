@@ -371,3 +371,92 @@ h1 {
     padding: 1rem;
   }
 }
+
+
+
+
+/*********************pantalla registro**********************/
+
+/* Estilos específicos para registro */
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 200px);
+  padding: 2rem;
+}
+
+.register-card {
+  background-color: var(--white);
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 450px;
+  text-align: center;
+}
+
+.register-card h2 {
+  color: var(--primary-color);
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+}
+
+.register-card h2 i {
+  color: var(--secondary-color);
+  margin-right: 10px;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.register-button {
+  background-color: var(--secondary-color);
+  color: var(--white);
+  border: none;
+  padding: 0.8rem;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 1rem;
+}
+
+.register-button:hover {
+  background-color: #d35400;
+}
+
+.register-button i {
+  margin-right: 8px;
+}
+
+.register-links {
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.register-links a {
+  color: var(--secondary-color);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.register-links a:hover {
+  color: #d35400;
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .register-card {
+    padding: 1.5rem;
+  }
+  
+  .register-container {
+    min-height: calc(100vh - 150px);
+    padding: 1rem;
+  }
+}

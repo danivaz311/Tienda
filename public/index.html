@@ -10,18 +10,16 @@
   <header>
     <nav class="navbar">
       <div class="logo">📚 BookStore</div>
-      <ul class="nav-links">
-        <li><a href="index.html">Inicio</a></li>
-        <li class="dropdown">
-          <a href="login.html" class="dropbtn">Login</a>
-          <div class="dropdown-content" id="user-dropdown">
-            <a href="#" id="logout-btn">Cerrar sesión</a>
-          </div>
-        </li>
-        <li><a href="registro.html">Registro</a></li>
-        <li><a href="carrito.html">Carrito</a></li>
-        <li class="auth-only"><a href="orden-confirmada.html">Orden Confirmada</a></li>
-        <li class="auth-only"><a href="historial.html">Historial</a></li>
+      <ul class="nav-links nav-menu">
+        <li><a href="index.html" class="nav-link">Inicio</a></li>
+        <li><a href="registro.html" class="nav-link">Registro</a></li>
+        <li><a href="carrito.html" class="nav-link">Carrito</a></li>
+        <li class="auth-only"><a href="orden-confirmada.html" class="nav-link">Orden Confirmada</a></li>
+        <li class="auth-only"><a href="historial.html" class="nav-link">Historial</a></li>
+
+        <!-- LOGIN / LOGOUT -->
+        <li><a href="login.html" id="login-link" class="nav-link">Login</a></li>
+        <li class="auth-only"><a href="#" id="logout-link" class="nav-link">Cerrar sesión</a></li>
       </ul>
       <div class="hamburger">☰</div>
     </nav>
@@ -32,6 +30,9 @@
     <div id="bienvenida" class="welcome-message"></div>
     <div id="libros" class="books-grid"></div>
   </main>
+
+  <!-- Notificación flotante -->
+  <div id="notification" class="notification"></div>
 
   <footer class="footer">
     <p>© 2023 BookStore - Todos los derechos reservados</p>
