@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/forms.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+  <!-- REEMPLAZAR ESTE HEADER -->
+  <header>
+    <nav class="navbar">
+      <a href="index.html" class="logo-link">
+        <div class="logo">📚 BookStore</div>
+      </a>
+      <ul class="nav-links nav-menu">
+        <li class="nav-item"><a href="index.html" class="nav-link">Inicio</a></li>
+        <li class="nav-item"><a href="registro.html" class="nav-link">Registro</a></li>
+        <a href="carrito.html" class="nav-link">
+          Carrito <span id="cart-count" class="cart-badge">0</span>
+        </a>
+        <li class="auth-only nav-item"><a href="orden-confirmada.html" class="nav-link">Orden Confirmada</a></li>
+        <li class="auth-only nav-item"><a href="historial.html" class="nav-link">Historial</a></li>
+        <li class="nav-item" id="login-container"><a href="login.html" id="login-link" class="nav-link">Login</a></li>
+        <li class="auth-only nav-item"><a href="#" id="logout-link" class="nav-link">Cerrar sesión</a></li>
+      </ul>
+      <div class="hamburger">☰</div>
+    </nav>
+  </header>
+
+  <main class="register-container">
+    <div class="register-card">
+      <h2><i class="fas fa-user-plus"></i> Crear Cuenta</h2>
+      <form id="registro-form">
+        <div id="registro-error" class="error-message" style="display:none;"></div>
+        
+        <div class="form-group">
+          <label for="nombre"><i class="fas fa-user"></i> Nombre Completo</label>
+          <input type="text" name="nombre" id="nombre" placeholder="Tu nombre completo" required>
+        </div>
+        <div class="form-group">
+          <label for="correo"><i class="fas fa-envelope"></i> Correo Electrónico</label>
+          <input type="email" name="correo" id="correo" placeholder="tu@email.com" required>
+        </div>
+        <div class="form-group">
+          <label for="contrasena"><i class="fas fa-lock"></i> Contraseña</label>
+          <input type="password" name="contrasena" id="contrasena" placeholder="Crea una contraseña segura" required>
+        </div>
+        <button type="submit" class="register-button">
+          <i class="fas fa-user-plus"></i> Registrarse
+        </button>
+      </form>
+      <div id="mensaje" class="message"></div>
+      <div class="register-links">
+        <p>¿Ya tienes cuenta? <a href="login.html">Inicia sesión aquí</a></p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-bottom">
+      <p>&copy; 2025 BookStore - Todos los derechos reservados</p>
+    </div>
+  </footer>
+
+  <script src="../js/validation.js"></script>
+  <script src="../js/registro.js"></script>
+  <script src="../js/index.js"></script>
+</body>
+</html>

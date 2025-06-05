@@ -1,0 +1,706 @@
+:root {
+  --primary-blue: #1a237e;
+  --light-blue: #534bae;
+  --gold: #ffd700;
+  --dark-gold: #c8a600;
+  --white: #ffffff;
+  --light-gray: #f5f5f5;
+  --dark-gray: #333333;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background-color: var(--light-gray);
+  color: var(--dark-gray);
+  line-height: 1.6;
+}
+
+.navbar {
+  background-color: var(--primary-blue);
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.logo-link {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  align-items: center;
+}
+
+.logo-link:hover {
+  opacity: 0.9;
+}
+
+.logo {
+  cursor: pointer;
+  color: var(--gold);
+  font-size: 1.8rem;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.nav-links {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  align-items: center; /* Asegura alineación vertical */
+}
+
+.nav-item {
+  margin: 0 0.5rem;
+  display: flex; /* Esto es clave para la alineación */
+}
+
+.nav-links a {
+  color: var(--white);
+  text-decoration: none;
+  transition: color 0.3s;
+  font-weight: 500;
+  display: block; /* Esto es importante para que todos los enlaces tengan el mismo formato */
+}
+
+.nav-links a:hover {
+  color: var(--gold);
+}
+
+.auth-only {
+  display: none;
+}
+
+body.logged-in .auth-only {
+  display: flex; /* Usar flex para mantener consistencia con los otros elementos */
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: var(--white);
+  min-width: 160px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+  z-index: 1;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.dropdown-content a {
+  color: var(--dark-gray);
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown-content a:hover {
+  background-color: var(--light-gray);
+  color: var(--primary-blue);
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+.hamburger {
+  color: var(--white);
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: none;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+h1 {
+  color: var(--primary-blue);
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 2.5rem;
+}
+
+.gold {
+  color: var(--gold);
+}
+
+.welcome-message {
+  background-color: var(--white);
+  padding: 1rem;
+  margin-bottom: 2rem;
+  border-left: 4px solid var(--gold);
+  color: var(--primary-blue);
+  font-weight: 500;
+  border-radius: 0 4px 4px 0;
+}
+
+.books-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+}
+
+.books-grid div {
+  background-color: var(--white);
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.books-grid div:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.books-grid strong {
+  color: var(--primary-blue);
+  font-size: 1.2rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.books-grid button {
+  background-color: var(--gold);
+  color: var(--dark-gray);
+  border: none;
+  padding: 0.5rem 1rem;
+  margin-top: 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s;
+}
+
+.books-grid button:hover {
+  background-color: var(--dark-gold);
+}
+
+.footer {
+  background-color: var(--primary-blue);
+  color: var(--white);
+  text-align: center;
+  padding: 1.5rem;
+  margin-top: 3rem;
+}
+
+@media (max-width: 768px) {
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    position: absolute;
+    top: 70px;
+    left: 0;
+    background-color: var(--primary-blue);
+    padding: 1rem;
+  }
+
+  .nav-links.active {
+    display: flex;
+  }
+
+  .nav-links li {
+    margin: 0.5rem 0;
+  }
+
+  .hamburger {
+    display: block;
+  }
+
+  .dropdown-content {
+    position: static;
+    box-shadow: none;
+    display: none;
+    width: 100%;
+  }
+
+  .dropdown:hover .dropdown-content {
+    display: none;
+  }
+
+  .dropdown.active .dropdown-content {
+    display: block;
+  }
+
+  /* Añade esto para crear un grid responsivo */
+
+  #libros {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 25px;
+    margin-top: 20px;
+  }
+
+  @media (max-width: 768px) {
+    #libros {
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 15px;
+    }
+    
+    .book-cover {
+      width: 130px;
+      height: 180px;
+    }
+  }
+}
+
+/*********************PARA PANTALLA LOGIN/******************************************************
+/* Estilos específicos para login */
+
+
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 200px);
+  padding: 2rem;
+}
+
+.login-card {
+  background-color: var(--white);
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 450px;
+  text-align: center;
+}
+
+.login-card h2 {
+  color: var(--primary-color);
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+}
+
+.login-card h2 i {
+  color: var(--secondary-color);
+  margin-right: 10px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+.form-group label i {
+  color: var(--secondary-color);
+  margin-right: 8px;
+  width: 20px;
+}
+
+.login-form input {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--gray);
+  border-radius: 5px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.login-form input:focus {
+  border-color: var(--secondary-color);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(230, 126, 34, 0.2);
+}
+
+.login-button {
+  background-color: var(--secondary-color);
+  color: var(--white);
+  border: none;
+  padding: 0.8rem;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 1rem;
+}
+
+.login-button:hover {
+  background-color: #d35400;
+}
+
+.login-button i {
+  margin-right: 8px;
+}
+
+.message {
+  margin: 1.5rem 0;
+  padding: 0.8rem;
+  border-radius: 5px;
+  font-weight: 500;
+}
+
+.message.success {
+  background-color: rgba(46, 204, 113, 0.1);
+  color: #27ae60;
+  border: 1px solid #2ecc71;
+}
+
+.message.error {
+  background-color: rgba(231, 76, 60, 0.1);
+  color: #c0392b;
+  border: 1px solid #e74c3c;
+}
+
+.login-links {
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.login-links a {
+  color: var(--secondary-color);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.login-links a:hover {
+  color: #d35400;
+  text-decoration: underline;
+}
+
+.back-button {
+  color: var(--white);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: color 0.3s;
+}
+
+.back-button:hover {
+  color: var(--secondary-color);
+}
+
+.error-message {
+  color: #721c24;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 15px;
+}
+
+@media (max-width: 768px) {
+  .login-card {
+    padding: 1.5rem;
+  }
+  
+  .login-container {
+    min-height: calc(100vh - 150px);
+    padding: 1rem;
+  }
+}
+
+/*********************pantalla registro**********************/
+
+/* Estilos específicos para registro */
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 200px);
+  padding: 2rem;
+}
+
+.register-card {
+  background-color: var(--white);
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 450px;
+  text-align: center;
+}
+
+.register-card h2 {
+  color: var(--primary-color);
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+}
+
+.register-card h2 i {
+  color: var(--secondary-color);
+  margin-right: 10px;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.register-button {
+  background-color: var(--secondary-color);
+  color: var(--white);
+  border: none;
+  padding: 0.8rem;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 1rem;
+}
+
+.register-button:hover {
+  background-color: #d35400;
+}
+
+.register-button i {
+  margin-right: 8px;
+}
+
+.register-links {
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.register-links a {
+  color: var(--secondary-color);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.register-links a:hover {
+  color: #d35400;
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .register-card {
+    padding: 1.5rem;
+  }
+  
+  .register-container {
+    min-height: calc(100vh - 150px);
+    padding: 1rem;
+  }
+}
+
+/* Añade estas reglas a tu archivo CSS */
+
+/* Por defecto, los elementos con auth-only están ocultos */
+.auth-only {
+  display: none;
+}
+
+/* Cuando el usuario está autenticado, añadimos la clase .logged-in al body */
+body.logged-in .auth-only.nav-item {
+  display: list-item; /* Para elementos de navegación */
+}
+
+body.logged-in .auth-only:not(.nav-item) {
+  display: block; /* Para otros elementos con auth-only */
+}
+
+body.logged-in #login-link {
+  display: none;
+}
+
+body:not(.logged-in) #logout-link {
+  display: none;
+}
+
+/* Estilos para la notificación flotante */
+
+.notification {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #4a90e2;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  transform: translateY(150%);
+  transition: transform 0.3s ease-in-out;
+  z-index: 1000;
+  font-size: 16px;
+}
+
+.notification.show {
+  transform: translateY(0);
+}
+
+/* Estilo para el contador del carrito */
+
+.cart-badge {
+  background-color: #e74c3c;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 12px;
+  margin-left: 5px;
+  display: none; /* Se muestra sólo cuando hay items */
+}
+
+/* Añade esta regla para ocultar elementos cuando el usuario está logueado */
+
+/* Elementos que se muestran solo cuando el usuario NO está autenticado */
+.logged-in .non-auth-only {
+  display: none;
+}
+
+/* Elementos que se muestran solo cuando el usuario SÍ está autenticado */
+.auth-only {
+  display: none;
+}
+
+.logged-in .auth-only {
+  display: block;
+}
+
+/* Si los elementos están en un flex o grid container, usa esta regla */
+li.auth-only {
+  display: none;
+}
+
+.logged-in li.auth-only {
+  display: list-item;
+}
+
+/* Para enlaces dentro de listas en navegación */
+.logged-in li.non-auth-only {
+  display: none;
+}
+
+/* Añade estas reglas CSS */
+
+/* Elementos que solo se muestran a administradores */
+.admin-only {
+  display: none;
+}
+
+/* Cuando el usuario es admin, mostrar elementos admin-only */
+.admin-user .admin-only {
+  display: block;
+}
+
+/* Si son elementos de lista en navegación */
+li.admin-only {
+  display: none;
+}
+
+.admin-user li.admin-only {
+  display: list-item;
+}
+
+/* Añade estas reglas para estandarizar tus imágenes */
+
+.book-cover {
+  width: 150px;  /* Ancho fijo para todas las portadas */
+  height: 200px; /* Alto fijo para todas las portadas */
+  overflow: hidden;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  margin: 0 auto 15px;
+  position: relative;
+  background-color: #f8f9fa;
+}
+
+.book-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;  /* Hace que la imagen cubra el área sin distorsionarse */
+  object-position: center; /* Centra la imagen */
+  transition: transform 0.3s ease;
+}
+
+/* Efecto hover opcional */
+.book-cover:hover img {
+  transform: scale(1.05);
+}
+
+/* En caso de que la imagen no cargue correctamente */
+.book-cover img[src="https://via.placeholder.com/150x200?text=Error+Imagen"],
+.book-cover img[src="https://via.placeholder.com/150x200?text=Sin+Imagen"] {
+  object-fit: contain; /* Para imágenes de placeholder, usa contain */
+  padding: 10px;
+}
+
+/* Añade estos estilos adicionales */
+
+.book-item {
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  border-radius: 8px;
+  padding: 15px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+
+.book-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.book-info {
+  text-align: center;
+}
+
+.book-title {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin: 10px 0 5px;
+  color: #333;
+  height: 2.4rem; /* Altura fija para títulos */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Limita a 2 líneas */
+  -webkit-box-orient: vertical;
+}
+
+.book-author {
+  color: #666;
+  font-style: italic;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+
+.book-price {
+  font-weight: bold;
+  color: #2c3e50;
+  font-size: 1.1rem;
+  margin-bottom: 12px;
+}
+
+.btn-add-cart {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  width: 100%;
+}
+
+.btn-add-cart:hover {
+  background-color: #2980b9;
+}

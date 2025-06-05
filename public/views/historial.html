@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Historial de Compras | BookStore</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    .history-item {
+      background-color: #fff;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .history-date {
+      color: #666;
+      margin-bottom: 0.5rem;
+    }
+    
+    .history-details {
+      margin: 0.5rem 0;
+    }
+    
+    .history-price {
+      font-weight: bold;
+      color: #2c3e50;
+    }
+    
+    .order-items {
+      border-left: 3px solid #3498db;
+      padding-left: 1rem;
+      margin: 1rem 0;
+    }
+    
+    .order-item {
+      padding: 0.75rem;
+      margin: 0.5rem 0;
+      border-bottom: 1px solid #f2f2f2;
+    }
+    
+    .order-item:last-child {
+      border-bottom: none;
+    }
+    
+    .order-total {
+      margin-top: 1rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid #eee;
+      font-weight: bold;
+      font-size: 1.1em;
+      text-align: right;
+      color: #2c3e50;
+    }
+    
+    .no-orders {
+      text-align: center;
+      padding: 2rem;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+    }
+    
+    .admin-only {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Barra de navegación -->
+  <header>
+    <nav class="navbar">
+      <a href="index.html" class="logo-link">
+        <div class="logo">📚 BookStore</div>
+      </a>
+      <ul class="nav-links nav-menu">
+        <li class="nav-item"><a href="index.html" class="nav-link">Inicio</a></li>
+        <li class="nav-item non-auth-only"><a href="registro.html" class="nav-link">Registro</a></li>
+        <li class="nav-item">
+          <a href="carrito.html" class="nav-link">
+            Carrito <span id="cart-count" class="cart-badge">0</span>
+          </a>
+        </li>
+        <li class="auth-only nav-item"><a href="orden-confirmada.html" class="nav-link">Orden Confirmada</a></li>
+        <li class="auth-only nav-item"><a href="historial.html" class="nav-link">Historial</a></li>
+        <li class="nav-item"><a href="login.html" id="login-link" class="nav-link">Login</a></li>
+        <li class="auth-only nav-item"><a href="#" id="logout-link" class="nav-link">Cerrar sesión</a></li>
+      </ul>
+      <div class="hamburger">☰</div>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h1><i class="fas fa-history"></i> Historial de Compras</h1>
+    <div id="historial"></div>
+    
+    <!-- Añade este div en alguna parte visible de la página -->
+    <div id="adminAccess" class="admin-only" style="margin: 20px 0; text-align: center;">
+      <a href="admin.html" class="btn btn-primary">
+        <i class="fas fa-cog"></i> Acceder al Panel de Administración
+      </a>
+    </div>
+  </main>
+
+  <!-- Notificación flotante -->
+  <div id="notification" class="notification"></div>
+
+  <footer class="footer">
+    <p>&copy; 2025 BookStore - Todos los derechos reservados</p>
+  </footer>
+
+  <script src="../js/index.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      checkAuth(); // Verificar autenticación
+      cargarHistorial();
+    });
+
+    function showNotification(message) {
+      const notification = document.getElementById('notification');
+      notification.textContent = message;
+      notification.classList.add('show');
+      
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, 3000);
+    }
+    
+    async function cargarHistorial() {
+      const token = localStorage.getItem('token');
+      const contenedor = document.getElementById('historial');
+      
+      if (!token) {
+        showNotification('Debes iniciar sesión para ver tu historial');
+        contenedor.innerHTML = `
+          <div class="no-orders">
+            <p>Debes iniciar sesión para ver tu historial de compras.</p>
+          </div>
+        `;
+        return;
+      }
+      
+      try {
+        // Mostrar indicador de carga
+        contenedor.innerHTML = `<p><i class="fas fa-spinner fa-spin"></i> Cargando historial...</p>`;
+        
+        const response = await fetch('/api/ordenes', {
+          headers: {
+            'Authorization': 'Bearer ' + token
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Error al obtener el historial');
+        }
+        
+        const data = await response.json();
+        
+        if (!data || data.length === 0) {
+          contenedor.innerHTML = `
+            <div class="no-orders">
+              <p>No tienes compras registradas.</p>
+              <p>¡Explora nuestro catálogo y haz tu primera compra!</p>
+            </div>
+          `;
+          return;
+        }
+        
+        // Agrupar los datos por orden_id
+        const ordenesAgrupadas = {};
+        
+        data.forEach(item => {
+          const ordenId = item.id || item.orden_id;
+          
+          // Si la orden no existe en el objeto, la creamos
+          if (!ordenesAgrupadas[ordenId]) {
+            ordenesAgrupadas[ordenId] = {
+              id: ordenId,
+              fecha: item.fecha,
+              items: [],
+              total: 0
+            };
+          }
+          
+          // Convertir valores a números
+          const precio = Number(item.precio_unitario);
+          const cantidad = Number(item.cantidad);
+          
+          // Añadir el item a la orden correspondiente
+          ordenesAgrupadas[ordenId].items.push({
+            titulo: item.titulo,
+            cantidad: cantidad,
+            precio_unitario: precio
+          });
+          
+          // Actualizar el total de la orden
+          ordenesAgrupadas[ordenId].total += isNaN(cantidad) || isNaN(precio) ? 0 : cantidad * precio;
+        });
+        
+        // Convertir el objeto a array y ordenar por fecha más reciente
+        const ordenesArray = Object.values(ordenesAgrupadas);
+        ordenesArray.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+        
+        // Generar el HTML para mostrar las órdenes
+        let html = '';
+        ordenesArray.forEach(orden => {
+          // Formatear fecha
+          const fecha = new Date(orden.fecha).toLocaleString();
+          
+          // Crear HTML para los items de esta orden
+          let itemsHtml = '';
+          orden.items.forEach(item => {
+            // Convertir a número para asegurar que podemos usar toFixed
+            const precio = Number(item.precio_unitario);
+            const cantidad = Number(item.cantidad);
+            const subtotal = cantidad * precio;
+            
+            itemsHtml += `
+              <div class="order-item">
+                <div><strong>${item.titulo}</strong></div>
+                <div>Cantidad: ${cantidad} × $${isNaN(precio) ? '0.00' : precio.toFixed(2)} = $${isNaN(subtotal) ? '0.00' : subtotal.toFixed(2)}</div>
+              </div>
+            `;
+          });
+          
+          // Crear el HTML completo de la orden
+          html += `
+            <div class="history-item">
+              <div class="history-header">
+                <h3>Orden #${orden.id}</h3>
+                <span class="history-date">${fecha}</span>
+              </div>
+              
+              <div class="order-items">
+                ${itemsHtml}
+              </div>
+              
+              <div class="order-total">
+                Total de la orden: $${isNaN(orden.total) ? '0.00' : Number(orden.total).toFixed(2)}
+              </div>
+            </div>
+          `;
+        });
+        
+        contenedor.innerHTML = html;
+      } catch (err) {
+        console.error('Error al cargar el historial:', err);
+        contenedor.innerHTML = `
+          <div class="error-message">
+            <p>Error al cargar el historial. Inténtalo de nuevo más tarde.</p>
+            <p class="small">${err.message}</p>
+          </div>
+        `;
+      }
+    }
+  </script>
+</body>
+</html>

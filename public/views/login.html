@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iniciar Sesión | BookStore</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/forms.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+  <!-- REEMPLAZAR ESTE HEADER -->
+  <header>
+    <nav class="navbar">
+      <a href="index.html" class="logo-link">
+        <div class="logo">📚 BookStore</div>
+      </a>
+      <ul class="nav-links nav-menu">
+        <li class="nav-item"><a href="index.html" class="nav-link">Inicio</a></li>
+        <li class="nav-item"><a href="registro.html" class="nav-link">Registro</a></li>
+        <a href="carrito.html" class="nav-link">
+          Carrito <span id="cart-count" class="cart-badge">0</span>
+        </a>
+        <li class="auth-only nav-item"><a href="orden-confirmada.html" class="nav-link">Orden Confirmada</a></li>
+        <li class="auth-only nav-item"><a href="historial.html" class="nav-link">Historial</a></li>
+        <li class="nav-item"><a href="login.html" id="login-link" class="nav-link">Login</a></li>
+        <li class="auth-only nav-item"><a href="#" id="logout-link" class="nav-link">Cerrar sesión</a></li>
+      </ul>
+      <div class="hamburger">☰</div>
+    </nav>
+  </header>
+
+  <!-- Mantén el resto del contenido -->
+  <main class="login-container">
+    <div class="login-card">
+      <h2><i class="fas fa-sign-in-alt"></i> Iniciar Sesión</h2>
+      <form id="loginForm" class="login-form">
+        <div class="form-group">
+          <label for="correo"><i class="fas fa-envelope"></i> Correo Electrónico</label>
+          <input type="email" id="correo" name="correo" placeholder="tu@email.com" required />
+        </div>
+        <div class="form-group">
+          <label for="contrasena"><i class="fas fa-lock"></i> Contraseña</label>
+          <input type="password" id="contrasena" name="contrasena" placeholder="Tu contraseña" required />
+        </div>
+        <button type="submit" class="login-button">
+          <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+        </button>
+      </form>
+      <div id="mensaje" class="message"></div>
+      <div class="login-links">
+        <p>¿No tienes cuenta? <a href="registro.html">Regístrate aquí</a></p>
+        <p><a href="#">¿Olvidaste tu contraseña?</a></p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Notificación flotante (para consistencia con index.html) -->
+  <div id="notification" class="notification"></div>
+
+  <footer class="footer">
+    <p>&copy; 2025 BookStore - Todos los derechos reservados</p>
+  </footer>
+
+  <!-- Scripts necesarios -->
+  <script src="../js/login.js"></script>
+  <script src="../js/index.js"></script>
+  <script>
+    // Al iniciar sesión exitosamente:
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      
+      // Guardar referencia al carrito actual antes de iniciar sesión
+      const carritoActual = localStorage.getItem('carrito');
+      
+      // Resto del código de inicio de sesión...
+      
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('token', data.token);
+        
+        // Mostrar notificación
+        showNotification('¡Inicio de sesión exitoso!');
+        
+        // Si había un carrito guardado para este usuario, recuperarlo
+        try {
+          const payload = JSON.parse(atob(data.token.split('.')[1]));
+          const userId = payload.id;
+          const carritoGuardado = localStorage.getItem(`carrito_${userId}`);
+          
+          // Decidir qué carrito usar - priorizar el carrito guardado del usuario
+          if (carritoGuardado) {
+            localStorage.setItem('carrito', carritoGuardado);
+          } else if (carritoActual) {
+            // Si el usuario no tenía carrito guardado pero hay uno actual, guardarlo para él
+            localStorage.setItem(`carrito_${userId}`, carritoActual);
+          }
+        } catch (error) {
+          console.error('Error al recuperar carrito al iniciar sesión:', error);
+        }
+        
+        // Redireccionar
+        setTimeout(() => {
+          window.location.href = redirectUrl;
+        }, 1500);
+      }
+    }
+  </script>
+</body>
+</html>

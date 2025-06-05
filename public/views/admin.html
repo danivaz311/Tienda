@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Administrador | BookStore</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    .admin-section {
+      background-color: #fff;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .admin-section h2 {
+      color: #2c3e50;
+      margin-top: 0;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #eee;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: bold;
+      color: #34495e;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+
+    button {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-right: 0.5rem;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    button.delete {
+      background-color: #e74c3c;
+    }
+
+    button.delete:hover {
+      background-color: #c0392b;
+    }
+
+    button.edit {
+      background-color: #f39c12;
+    }
+
+    button.edit:hover {
+      background-color: #d35400;
+    }
+
+    .mensaje {
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 4px;
+    }
+
+    .mensaje.success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .mensaje.error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .book-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .book-item {
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      padding: 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+    }
+
+    .book-item:hover {
+      transform: translateY(-5px);
+    }
+
+    .book-item h3 {
+      margin-top: 0;
+      color: #2c3e50;
+      font-size: 1.25rem;
+    }
+
+    .book-actions {
+      margin-top: 1rem;
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+    }
+
+    .book-info {
+      margin: 0.5rem 0;
+      color: #7f8c8d;
+    }
+
+    .welcome-admin {
+      background-color: #2c3e50;
+      color: white;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .tab {
+      padding: 0.75rem 1.5rem;
+      background-color: #f8f9fa;
+      border-radius: 8px 8px 0 0;
+      cursor: pointer;
+      border: 1px solid #ddd;
+      border-bottom: none;
+    }
+
+    .tab.active {
+      background-color: #fff;
+      border-bottom: 2px solid #3498db;
+      font-weight: bold;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Estilos para la carga de imágenes */
+    .image-upload-container {
+      display: flex;
+      align-items: flex-start;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    
+    .image-preview-container {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      width: 200px;
+      height: 280px;
+      overflow: hidden;
+      background-color: #f8f9fa;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .image-preview-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .upload-controls {
+      flex: 1;
+      min-width: 250px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    
+    .file-info {
+      font-size: 0.9rem;
+      color: #666;
+      margin-top: 0.5rem;
+    }
+    
+    .upload-progress {
+      width: 100%;
+      height: 6px;
+      background-color: #e9ecef;
+      border-radius: 3px;
+      margin-top: 0.5rem;
+      overflow: hidden;
+    }
+    
+    .upload-progress-bar {
+      height: 100%;
+      background-color: #3498db;
+      width: 0;
+      transition: width 0.3s ease;
+    }
+    
+    .btn-secondary {
+      background-color: #6c757d;
+      color: white;
+    }
+    
+    .btn-secondary:hover {
+      background-color: #5a6268;
+    }
+    
+    .upload-success {
+      color: #28a745;
+    }
+    
+    .upload-error {
+      color: #dc3545;
+    }
+  </style>
+</head>
+<body>
+  <!-- Barra de navegación -->
+  <header>
+    <nav class="navbar">
+      <a href="index.html" class="logo-link">
+        <div class="logo">📚 BookStore</div>
+      </a>
+      <ul class="nav-links nav-menu">
+        <li class="nav-item"><a href="index.html" class="nav-link">Inicio</a></li>
+        <li class="nav-item non-auth-only"><a href="registro.html" class="nav-link">Registro</a></li>
+        <li class="nav-item">
+          <a href="carrito.html" class="nav-link">
+            Carrito <span id="cart-count" class="cart-badge">0</span>
+          </a>
+        </li>
+        <li class="auth-only nav-item"><a href="orden-confirmada.html" class="nav-link">Orden Confirmada</a></li>
+        <li class="auth-only nav-item"><a href="historial.html" class="nav-link">Historial</a></li>
+        <li class="nav-item"><a href="login.html" id="login-link" class="nav-link">Login</a></li>
+        <li class="auth-only nav-item"><a href="#" id="logout-link" class="nav-link">Cerrar sesión</a></li>
+        <li class="admin-only nav-item"><a href="admin.html" class="nav-link active"><i class="fas fa-cog"></i> Panel Admin</a></li>
+      </ul>
+      <div class="hamburger">☰</div>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="welcome-admin">
+      <h1><i class="fas fa-user-shield"></i> Panel de Administración</h1>
+      <div id="bienvenida"></div>
+    </div>
+
+    <!-- Tabs de navegación -->
+    <div class="tabs">
+      <div class="tab active" data-target="libros"><i class="fas fa-book"></i> Gestión de Libros</div>
+      <div class="tab" data-target="usuarios"><i class="fas fa-users"></i> Usuarios</div>
+      <div class="tab" data-target="ventas"><i class="fas fa-chart-bar"></i> Ventas</div>
+    </div>
+
+    <!-- Tab Content: Libros -->
+    <div id="libros-tab" class="tab-content active">
+      <div class="admin-section">
+        <h2><i class="fas fa-plus-circle"></i> Agregar / Editar Libro</h2>
+        <form id="formLibro">
+          <div class="form-group">
+            <label for="titulo"><i class="fas fa-heading"></i> Título:</label>
+            <input type="text" id="titulo" class="form-control" placeholder="Título del libro" required autofocus>
+          </div>
+          <div class="form-group">
+            <label for="autor"><i class="fas fa-user-edit"></i> Autor:</label>
+            <input type="text" id="autor" class="form-control" placeholder="Nombre del autor" required>
+          </div>
+          <div class="form-group">
+            <label for="descripcion"><i class="fas fa-align-left"></i> Descripción:</label>
+            <textarea id="descripcion" class="form-control" placeholder="Descripción del libro" rows="3"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="precio"><i class="fas fa-tag"></i> Precio:</label>
+            <input type="number" id="precio" class="form-control" placeholder="0.00" min="0" step="0.01" required>
+          </div>
+          <div class="form-group">
+            <label for="stock"><i class="fas fa-boxes"></i> Stock:</label>
+            <input type="number" id="stock" class="form-control" placeholder="0" min="0" step="1" required>
+          </div>
+          <!-- Reemplaza el campo de imagen existente por este selector de archivos -->
+          <div class="form-group">
+            <label for="imagenUpload"><i class="fas fa-upload"></i> Imagen del libro:</label>
+            <div class="image-upload-container">
+              <div class="image-preview-container">
+                <img id="imagenPreview" src="https://via.placeholder.com/150x200?text=Sin+Imagen" alt="Vista previa">
+              </div>
+              <div class="upload-controls">
+                <input type="file" id="imagenUpload" class="form-control-file" accept="image/*" style="display: none;">
+                <button type="button" id="btnSelectImage" class="btn-secondary">
+                  <i class="fas fa-file-upload"></i> Seleccionar imagen
+                </button>
+                <div class="file-info" id="fileInfo">Ningún archivo seleccionado</div>
+                <input type="hidden" id="imagen" name="imagen">
+              </div>
+            </div>
+          </div>
+          <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Guardar libro</button>
+          <button type="button" onclick="cancelarEdicion()" id="btnCancelar" style="display:none;"><i class="fas fa-times"></i> Cancelar</button>
+        </form>
+        <div id="mensaje" class="mensaje"></div>
+      </div>
+
+      <div class="admin-section">
+        <h2><i class="fas fa-list"></i> Libros Registrados</h2>
+        <div id="listaLibros" class="book-grid"></div>
+      </div>
+    </div>
+
+    <!-- Tab Content: Usuarios -->
+    <div id="usuarios-tab" class="tab-content">
+      <div class="admin-section">
+        <h2><i class="fas fa-users"></i> Administración de Usuarios</h2>
+        <p>Esta sección se implementará próximamente.</p>
+      </div>
+    </div>
+
+    <!-- Tab Content: Ventas -->
+    <div id="ventas-tab" class="tab-content">
+      <div class="admin-section">
+        <h2><i class="fas fa-chart-line"></i> Reporte de Ventas</h2>
+        <p>Esta sección se implementará próximamente.</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Notificación flotante -->
+  <div id="notification" class="notification"></div>
+
+  <footer class="footer">
+    <p>&copy; 2025 BookStore - Todos los derechos reservados</p>
+  </footer>
+
+  <script src="../js/index.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const token = localStorage.getItem('token');
+      const bienvenida = document.getElementById('bienvenida');
+
+      if (!token) {
+        showNotification('Acceso denegado. Debes iniciar sesión como administrador.');
+        setTimeout(() => {
+          window.location.href = 'login.html';
+        }, 2000);
+        return;
+      }
+
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload.rol !== 'admin') {
+          showNotification('Acceso denegado. Solo para administradores.');
+          setTimeout(() => {
+            window.location.href = 'index.html';
+          }, 2000);
+          return;
+        }
+
+        bienvenida.innerHTML = `<span>¡Hola, <strong>${payload.nombre || payload.correo}</strong>! <button onclick="cerrarSesion()" class="btn-sm"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</button></span>`;
+      } catch (error) {
+        showNotification('Error de autenticación. Por favor, inicia sesión nuevamente.');
+        setTimeout(() => {
+          window.location.href = 'login.html';
+        }, 2000);
+      }
+
+      // Activar pestaña
+      const tabs = document.querySelectorAll('.tab');
+      tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+          // Desactivar todas las pestañas
+          tabs.forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+          
+          // Activar la pestaña actual
+          this.classList.add('active');
+          document.getElementById(`${this.dataset.target}-tab`).classList.add('active');
+        });
+      });
+
+      cargarLibros();
+    });
+
+    function showNotification(message) {
+      const notification = document.getElementById('notification');
+      notification.textContent = message;
+      notification.classList.add('show');
+      
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, 3000);
+    }
+
+    function cerrarSesion() {
+      localStorage.removeItem('token');
+      showNotification('Has cerrado sesión correctamente');
+      setTimeout(() => {
+        window.location.href = 'login.html';
+      }, 1500);
+    }
+
+    function cancelarEdicion() {
+      document.getElementById('formLibro').reset();
+      document.getElementById('formLibro').dataset.editando = '';
+      document.getElementById('formLibro').querySelector('button[type="submit"]').innerHTML = '<i class="fas fa-save"></i> Guardar libro';
+      document.getElementById('btnCancelar').style.display = 'none';
+    }
+
+    // Cargar libros registrados
+    async function cargarLibros() {
+      const token = localStorage.getItem('token');
+      try {
+        const response = await fetch('/api/libros', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+        
+        const libros = await response.json();
+        const contenedor = document.getElementById('listaLibros');
+        contenedor.innerHTML = '';
+
+        if (libros.length === 0) {
+          contenedor.innerHTML = '<div class="empty-message"><i class="fas fa-info-circle"></i> No hay libros registrados.</div>';
+          return;
+        }
+
+        libros.forEach(libro => {
+          const div = document.createElement('div');
+          div.className = 'book-item';
+          
+          // Si la imagen no existe, usar una imagen predeterminada
+          const imagenUrl = libro.imagen || 'https://via.placeholder.com/150x200?text=Sin+Imagen';
+          
+          div.innerHTML = `
+            <h3>${libro.titulo}</h3>
+            <div class="book-info"><strong><i class="fas fa-user-edit"></i> Autor:</strong> ${libro.autor}</div>
+            <div class="book-info"><strong><i class="fas fa-tag"></i> Precio:</strong> $${parseFloat(libro.precio).toFixed(2)}</div>
+            <div class="book-info"><strong><i class="fas fa-boxes"></i> Stock:</strong> ${libro.stock}</div>
+            <div class="book-actions">
+              <button onclick="editarLibro(${libro.id}, '${libro.titulo}', '${libro.autor}', '${libro.descripcion || ''}', ${libro.precio}, ${libro.stock}, '${libro.imagen || ''}')" class="edit"><i class="fas fa-edit"></i> Editar</button>
+              <button onclick="eliminarLibro(${libro.id})" class="delete"><i class="fas fa-trash-alt"></i> Eliminar</button>
+            </div>
+          `;
+          contenedor.appendChild(div);
+        });
+      } catch (error) {
+        console.error('Error al cargar libros:', error);
+        document.getElementById('listaLibros').innerHTML = `
+          <div class="mensaje error">
+            <i class="fas fa-exclamation-triangle"></i> Error al cargar los libros: ${error.message}
+          </div>
+        `;
+      }
+    }
+
+    // Eliminar libro
+    async function eliminarLibro(id) {
+      if (!confirm('¿Estás seguro de eliminar este libro?')) return;
+      
+      const token = localStorage.getItem('token');
+      try {
+        // Cambia /api/books/ por /api/libros/
+        const response = await fetch(`/api/libros/${id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          showNotification('Libro eliminado correctamente');
+          cargarLibros();
+        } else {
+          const data = await response.json();
+          showNotification(data.error || 'Error al eliminar libro');
+        }
+      } catch (error) {
+        console.error('Error al eliminar libro:', error);
+        showNotification('Error de conexión al intentar eliminar el libro');
+      }
+    }
+
+    // Preparar edición
+    function editarLibro(id, titulo, autor, descripcion, precio, stock, imagen) {
+      document.getElementById('titulo').value = titulo;
+      document.getElementById('autor').value = autor;
+      document.getElementById('descripcion').value = descripcion || '';
+      document.getElementById('precio').value = precio;
+      document.getElementById('stock').value = stock;
+      document.getElementById('imagen').value = imagen || '';
+      
+      document.getElementById('formLibro').dataset.editando = id;
+      document.getElementById('formLibro').querySelector('button[type="submit"]').innerHTML = '<i class="fas fa-sync-alt"></i> Actualizar libro';
+      document.getElementById('btnCancelar').style.display = 'inline-block';
+      
+      // Desplazar a la parte superior del formulario
+      document.getElementById('formLibro').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Guardar libro nuevo o actualizado
+    document.getElementById('formLibro').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const mensaje = document.getElementById('mensaje');
+      mensaje.className = 'mensaje';
+      
+      const titulo = document.getElementById('titulo').value.trim();
+      const autor = document.getElementById('autor').value.trim();
+      const descripcion = document.getElementById('descripcion').value.trim();
+      const precio = parseFloat(document.getElementById('precio').value);
+      const stock = parseInt(document.getElementById('stock').value);
+      const imagen = document.getElementById('imagen').value.trim();
+      const id = document.getElementById('formLibro').dataset.editando;
+
+      if (!titulo || !autor || isNaN(precio) || isNaN(stock)) {
+        mensaje.textContent = 'Por favor completa todos los campos obligatorios.';
+        mensaje.classList.add('error');
+        return;
+      }
+
+      const token = localStorage.getItem('token');
+      try {
+        // Cambia los URLs aquí también
+        const url = id ? `/api/libros/${id}` : '/api/libros';
+        const method = id ? 'PUT' : 'POST';
+
+        const response = await fetch(url, {
+          method,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ 
+            titulo, 
+            autor, 
+            descripcion, 
+            precio, 
+            stock,
+            imagen
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          mensaje.innerHTML = `<i class="fas fa-check-circle"></i> ${id ? 'Libro actualizado correctamente.' : 'Libro agregado correctamente.'}`;
+          mensaje.classList.add('success');
+          document.getElementById('formLibro').reset();
+          document.getElementById('formLibro').dataset.editando = '';
+          document.getElementById('formLibro').querySelector('button[type="submit"]').innerHTML = '<i class="fas fa-save"></i> Guardar libro';
+          document.getElementById('btnCancelar').style.display = 'none';
+          cargarLibros();
+        } else {
+          mensaje.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${data.error || 'Error al guardar el libro.'}`;
+          mensaje.classList.add('error');
+        }
+      } catch (error) {
+        console.error(error);
+        mensaje.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error al conectar con el servidor.';
+        mensaje.classList.add('error');
+      }
+    });
+
+    // Manejar la selección de archivo para la imagen
+    document.getElementById('btnSelectImage').addEventListener('click', function() {
+      document.getElementById('imagenUpload').click();
+    });
+
+    // Mostrar vista previa cuando se selecciona un archivo
+    document.getElementById('imagenUpload').addEventListener('change', async function(e) {
+      const fileInfo = document.getElementById('fileInfo');
+      const imagenPreview = document.getElementById('imagenPreview');
+      const imagenInput = document.getElementById('imagen');
+      
+      // Verificar si se seleccionó algún archivo
+      if (this.files && this.files[0]) {
+        const file = this.files[0];
+        console.log('Archivo seleccionado:', file.name, file.type, file.size);
+        
+        // Verificar tipo de archivo
+        if (!file.type.match('image.*')) {
+          showNotification('Por favor, selecciona una imagen válida');
+          fileInfo.textContent = 'Formato de archivo no válido';
+          fileInfo.className = 'file-info upload-error';
+          return;
+        }
+        
+        // Verificar tamaño del archivo (máximo 2MB)
+        if (file.size > 2 * 1024 * 1024) {
+          showNotification('La imagen es demasiado grande (máximo 2MB)');
+          fileInfo.textContent = 'Imagen demasiado grande (máx. 2MB)';
+          fileInfo.className = 'file-info upload-error';
+          return;
+        }
+        
+        // Mostrar información del archivo
+        fileInfo.textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+        fileInfo.className = 'file-info';
+        
+        // Crear vista previa
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          imagenPreview.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+        
+        // Intentar subir la imagen al servidor
+        try {
+          fileInfo.textContent = 'Subiendo imagen...';
+          
+          // Crear objeto FormData para enviar el archivo
+          const formData = new FormData();
+          formData.append('imagen', file);
+          
+          console.log('Enviando solicitud a /api/upload');
+          
+          // IMPORTANTE: No usar headers ni token aquí
+          const response = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData  // Solo enviar el FormData sin headers
+          });
+          
+          console.log('Respuesta del servidor:', response.status, response.statusText);
+          
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Error de servidor:', errorText);
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+          }
+          
+          const data = await response.json();
+          console.log('Datos recibidos:', data);
+          
+          if (data.url) {
+            // Guardar la URL devuelta por el servidor
+            imagenInput.value = data.url;
+            document.getElementById('imagenUrlDebug').textContent = data.url;
+            fileInfo.textContent = 'Imagen subida correctamente';
+            fileInfo.className = 'file-info upload-success';
+            showNotification('Imagen subida correctamente');
+          } else {
+            throw new Error('El servidor no devolvió una URL de imagen');
+          }
+        } catch (error) {
+          console.error('Error detallado:', error);
+          fileInfo.textContent = `Error al subir: ${error.message}`;
+          fileInfo.className = 'file-info upload-error';
+          showNotification('Error al subir la imagen');
+        }
+      } else {
+        fileInfo.textContent = 'Ningún archivo seleccionado';
+        fileInfo.className = 'file-info';
+      }
+    });
+
+    // Verificar que fileInfo existe
+    const fileInfo = document.getElementById('fileInfo');
+    if (!fileInfo) {
+      console.error('Elemento fileInfo no encontrado');
+      // Crear el elemento si no existe
+      const container = document.querySelector('.upload-controls');
+      const newFileInfo = document.createElement('div');
+      newFileInfo.id = 'fileInfo';
+      newFileInfo.className = 'file-info';
+      newFileInfo.textContent = 'Ningún archivo seleccionado';
+      container.appendChild(newFileInfo);
+    }
+
+    // Modificar la función editarLibro para actualizar también la vista previa
+    const originalEditarLibro = editarLibro;
+    editarLibro = function(id, titulo, autor, descripcion, precio, stock, imagen) {
+      originalEditarLibro(id, titulo, autor, descripcion, precio, stock, imagen);
+      
+      // Actualizar la vista previa de la imagen
+      if (imagen) {
+        document.getElementById('imagenPreview').src = imagen;
+        document.getElementById('fileInfo').textContent = 'Imagen actual del libro';
+        document.getElementById('fileInfo').className = 'file-info';
+      } else {
+        document.getElementById('imagenPreview').src = 'https://via.placeholder.com/150x200?text=Sin+Imagen';
+        document.getElementById('fileInfo').textContent = 'Ningún archivo seleccionado';
+        document.getElementById('fileInfo').className = 'file-info';
+      }
+    };
+
+    // Modificar cancelarEdición para resetear también la imagen
+    const originalCancelarEdicion = cancelarEdicion;
+    cancelarEdicion = function() {
+      originalCancelarEdicion();
+      document.getElementById('imagenPreview').src = 'https://via.placeholder.com/150x200?text=Sin+Imagen';
+      document.getElementById('fileInfo').textContent = 'Ningún archivo seleccionado';
+      document.getElementById('fileInfo').className = 'file-info';
+    };
+  </script>
+</body>
+</html>

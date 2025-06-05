@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carrito de Compras | BookStore</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    /* Estilos para el carrito de compras */
+    .cart-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .cart-items {
+      flex: 2;
+      min-width: 300px;
+    }
+
+    .cart-summary {
+      flex: 1;
+      min-width: 250px;
+      background-color: #f9f9f9;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 20px;
+      max-height: 80vh;
+      align-self: flex-start;
+    }
+
+    .cart-item {
+      background-color: #fff;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .cart-actions {
+      margin-top: 1.5rem;
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .cart-button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s;
+    }
+
+    .cart-button-primary {
+      background-color: #4a90e2;
+      color: white;
+      width: 100%;
+    }
+
+    .cart-button-primary:hover {
+      background-color: #3a7bc8;
+    }
+
+    .cart-button-danger {
+      background-color: #e74c3c;
+      color: white;
+    }
+
+    .cart-button-danger:hover {
+      background-color: #c0392b;
+    }
+
+    .cart-button-secondary {
+      background-color: #f1f1f1;
+      color: #333;
+    }
+
+    .cart-button-secondary:hover {
+      background-color: #ddd;
+    }
+
+    .cart-total {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin: 1.5rem 0;
+      border-top: 1px solid #ddd;
+      padding-top: 15px;
+    }
+
+    .quantity-controls {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      margin: 0.5rem 0;
+    }
+
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .summary-total {
+      font-size: 1.3rem;
+      font-weight: bold;
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 2px solid #ddd;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .empty-cart-message {
+      text-align: center;
+      padding: 30px;
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+
+    /* Media query para dispositivos móviles */
+    @media (max-width: 768px) {
+      .cart-container {
+        flex-direction: column;
+      }
+      
+      .cart-summary {
+        position: relative;
+        margin-top: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Barra de navegación -->
+  <header>
+    <nav class="navbar">
+      <a href="index.html" class="logo-link">
+        <div class="logo">📚 BookStore</div>
+      </a>
+      <ul class="nav-links nav-menu">
+        <li class="nav-item"><a href="index.html" class="nav-link">Inicio</a></li>
+        <li class="nav-item non-auth-only"><a href="registro.html" class="nav-link">Registro</a></li>
+        <a href="carrito.html" class="nav-link">
+          Carrito <span id="cart-count" class="cart-badge">0</span>
+        </a>
+        <li class="auth-only nav-item"><a href="orden-confirmada.html" class="nav-link">Orden Confirmada</a></li>
+        <li class="auth-only nav-item"><a href="historial.html" class="nav-link">Historial</a></li>
+        <li class="nav-item"><a href="login.html" id="login-link" class="nav-link">Login</a></li>
+        <li class="auth-only nav-item"><a href="#" id="logout-link" class="nav-link">Cerrar sesión</a></li>
+      </ul>
+      <div class="hamburger">☰</div>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h1><i class="fas fa-shopping-cart"></i> Carrito de Compras</h1>
+    
+    <div id="cart-message"></div>
+    
+    <div class="cart-container">
+      <!-- Columna izquierda: Libros del carrito -->
+      <div class="cart-items" id="carrito"></div>
+      
+      <!-- Columna derecha: Resumen del total -->
+      <div class="cart-summary" id="resumen">
+        <h2>Resumen del Pedido</h2>
+        <div id="resumen-productos"></div>
+        <div id="total" class="summary-total"></div>
+        <div class="cart-actions">
+          <button onclick="finalizarCompra()" class="cart-button cart-button-primary">
+            <i class="fas fa-cash-register"></i> Finalizar compra
+          </button>
+          <div style="display: flex; gap: 10px; margin-top: 10px; width: 100%;">
+            <button onclick="vaciarCarrito()" class="cart-button cart-button-danger" style="flex: 1;">
+              <i class="fas fa-broom"></i> Vaciar
+            </button>
+            <button onclick="window.location.href='index.html'" class="cart-button cart-button-secondary" style="flex: 1;">
+              <i class="fas fa-arrow-left"></i> Volver
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Notificación flotante -->
+  <div id="notification" class="notification"></div>
+
+  <footer class="footer">
+    <p>&copy; 2025 BookStore - Todos los derechos reservados</p>
+  </footer>
+
+  <script src="../js/index.js"></script>
+  <script>
+    function mostrarCarrito() {
+      const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+      const contenedor = document.getElementById('carrito');
+      const resumenProductos = document.getElementById('resumen-productos');
+      const totalDiv = document.getElementById('total');
+      const cartMessage = document.getElementById('cart-message');
+      const cartSummary = document.getElementById('resumen');
+      
+      contenedor.innerHTML = '';
+      resumenProductos.innerHTML = '';
+
+      // Actualiza el contador del carrito también
+      const cartBadge = document.getElementById('cart-count');
+      if (cartBadge) {
+        const totalItems = carrito.reduce((total, item) => total + item.cantidad, 0);
+        cartBadge.textContent = totalItems;
+        cartBadge.style.display = totalItems > 0 ? 'inline-block' : 'none';
+      }
+
+      if (carrito.length === 0) {
+        cartMessage.innerHTML = '<div class="empty-cart-message"><i class="fas fa-shopping-basket" style="font-size: 3rem; color: #ccc;"></i><p>Tu carrito está vacío.</p><p><a href="index.html">Ir a comprar</a></p></div>';
+        totalDiv.textContent = '';
+        cartSummary.style.display = 'none';
+        return;
+      }
+      
+      cartMessage.innerHTML = '';
+      cartSummary.style.display = 'block';
+      let total = 0;
+
+      carrito.forEach((item, index) => {
+        const subtotal = item.precio * item.cantidad;
+        total += subtotal;
+
+        // Añadir al panel principal (izquierdo)
+        const div = document.createElement('div');
+        div.className = 'cart-item';
+        div.innerHTML = `
+          <strong>${item.titulo}</strong><br>
+          Precio: $${item.precio.toFixed(2)} x ${item.cantidad} = $${subtotal.toFixed(2)}<br>
+          <div class="quantity-controls">
+            <button onclick="cambiarCantidad(${index}, 1)" class="cart-button cart-button-secondary">
+              <i class="fas fa-plus"></i>
+            </button>
+            <span style="margin: 0 10px;">${item.cantidad}</span>
+            <button onclick="cambiarCantidad(${index}, -1)" class="cart-button cart-button-secondary">
+              <i class="fas fa-minus"></i>
+            </button>
+            <button onclick="eliminarLibro(${index})" class="cart-button cart-button-danger" style="margin-left: auto;">
+              <i class="fas fa-trash"></i> Eliminar
+            </button>
+          </div>
+        `;
+        contenedor.appendChild(div);
+
+        // Añadir al resumen (derecho)
+        const resumenItem = document.createElement('div');
+        resumenItem.className = 'summary-item';
+        resumenItem.innerHTML = `
+          <div>${item.titulo} x${item.cantidad}</div>
+          <div>$${subtotal.toFixed(2)}</div>
+        `;
+        resumenProductos.appendChild(resumenItem);
+      });
+
+      // Mostrar total en el resumen
+      totalDiv.innerHTML = `
+        <span>Total:</span>
+        <span>$${total.toFixed(2)}</span>
+      `;
+    }
+
+    function cambiarCantidad(index, delta) {
+      const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+      carrito[index].cantidad += delta;
+
+      if (carrito[index].cantidad <= 0) {
+        carrito.splice(index, 1);
+        showNotification("Libro eliminado del carrito");
+      } else if (delta > 0) {
+        showNotification("Cantidad aumentada");
+      } else {
+        showNotification("Cantidad disminuida");
+      }
+
+      localStorage.setItem('carrito', JSON.stringify(carrito));
+      mostrarCarrito();
+    }
+
+    function eliminarLibro(index) {
+      const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+      const libroEliminado = carrito[index].titulo;
+      carrito.splice(index, 1);
+      localStorage.setItem('carrito', JSON.stringify(carrito));
+      showNotification(`"${libroEliminado}" eliminado del carrito`);
+      mostrarCarrito();
+    }
+
+    function vaciarCarrito() {
+      if (confirm('¿Estás seguro de que deseas vaciar el carrito?')) {
+        localStorage.removeItem('carrito');
+        showNotification("Carrito vaciado correctamente");
+        mostrarCarrito();
+      }
+    }
+
+    // Mejorar la función finalizarCompra
+    async function finalizarCompra() {
+      const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+      const token = localStorage.getItem('token');
+
+      if (!token) {
+        showNotification('Debes iniciar sesión para realizar la compra.');
+        setTimeout(() => {
+          window.location.href = 'login.html';
+        }, 2000);
+        return;
+      }
+
+      if (carrito.length === 0) {
+        showNotification('El carrito está vacío.');
+        return;
+      }
+
+      try {
+        // Mostrar estado de procesamiento
+        showNotification('Procesando tu compra...');
+        
+        const response = await fetch('/api/orden', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ carrito })
+        });
+
+        if (!response.ok) {
+          // Manejar errores...
+          const errorData = await response.json();
+          throw new Error(errorData.error || `Error ${response.status}: ${response.statusText}`);
+        }
+
+        const orden = await response.json();
+        
+        // IMPORTANTE: Limpiar AMBOS carritos - el general y el específico del usuario
+        localStorage.removeItem('carrito');
+        
+        // Limpiar también el carrito específico del usuario
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          const userId = payload.id;
+          localStorage.removeItem(`carrito_${userId}`);
+        } catch (error) {
+          console.error('Error al limpiar carrito del usuario:', error);
+        }
+        
+        // Actualizar contador del carrito inmediatamente
+        const cartBadge = document.getElementById('cart-count');
+        if (cartBadge) {
+          cartBadge.textContent = '0';
+          cartBadge.style.display = 'none';
+        }
+
+        // Redirigir a la página de orden confirmada
+        setTimeout(() => {
+          window.location.href = `orden-confirmada.html?id=${orden.id}`;
+        }, 2000);
+      } catch (error) {
+        showNotification(`Error al procesar la compra: ${error.message}`);
+      }
+    }
+
+    function showNotification(message) {
+      const notification = document.getElementById('notification');
+      notification.textContent = message;
+      notification.classList.add('show');
+
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, 3000);
+    }
+
+    // Mostrar el carrito al cargar la página
+    document.addEventListener('DOMContentLoaded', () => {
+      mostrarCarrito();
+    });
+  </script>
+</body>
+</html>

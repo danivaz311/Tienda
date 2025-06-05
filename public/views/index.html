@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tienda de Libros</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <a href="index.html" class="logo-link">
+        <div class="logo">📚 BookStore</div>
+      </a>
+      <ul class="nav-links nav-menu">
+        <li class="nav-item"><a href="index.html" class="nav-link">Inicio</a></li>
+        <li class="nav-item non-auth-only"><a href="registro.html" class="nav-link">Registro</a></li>
+        <li class="nav-item">
+          <a href="carrito.html" class="nav-link">
+            Carrito <span id="cart-count" class="cart-badge">0</span>
+          </a>
+        </li>
+        <li class="auth-only nav-item"><a href="orden-confirmada.html" class="nav-link">Orden Confirmada</a></li>
+        <li class="auth-only nav-item"><a href="historial.html" class="nav-link">Historial</a></li>
+        <li class="nav-item"><a href="login.html" id="login-link" class="nav-link">Login</a></li>
+        <li class="auth-only nav-item"><a href="#" id="logout-link" class="nav-link">Cerrar sesión</a></li>
+        <li class="admin-only nav-item"><a href="admin.html" class="nav-link"><i class="fas fa-cog"></i> Panel Admin</a></li>
+      </ul>
+      <div class="hamburger">☰</div>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h1>Tienda de Libros <span class="gold">📚</span></h1>
+    <div id="bienvenida" class="welcome-message">Bienvenido a nuestra tienda de libros</div>
+    <div id="libros" class="books-grid"></div>
+  </main>
+
+  <!-- Notificación flotante -->
+  <div id="notification" class="notification"></div>
+
+  <footer class="footer">
+    <p> 2025 BookStore - Todos los derechos reservados</p>
+  </footer>
+
+  <script src="../js/index.js"></script>
+</body>
+</html>
