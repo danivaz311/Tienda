@@ -263,6 +263,15 @@
         `;
       }
     }
+    
+    // Añade este script en la página de historial para evitar la limpieza del carrito
+    // Función específica para la página de historial
+    document.addEventListener('DOMContentLoaded', function() {
+      // Prevenir limpieza automática del carrito cuando venimos de orden-confirmada
+      window.preventCartClear = true;
+      
+      // Resto del código de inicialización de historial...
+    });
   </script>
 </body>
 </html>

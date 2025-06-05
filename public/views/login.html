@@ -78,32 +78,20 @@
       
       if (response.ok) {
         const data = await response.json();
+        
+        // Guardar token
         localStorage.setItem('token', data.token);
         
-        // Mostrar notificación
-        showNotification('¡Inicio de sesión exitoso!');
+        // Mostrar mensaje de éxito
+        showNotification('Inicio de sesión exitoso');
         
-        // Si había un carrito guardado para este usuario, recuperarlo
-        try {
-          const payload = JSON.parse(atob(data.token.split('.')[1]));
-          const userId = payload.id;
-          const carritoGuardado = localStorage.getItem(`carrito_${userId}`);
-          
-          // Decidir qué carrito usar - priorizar el carrito guardado del usuario
-          if (carritoGuardado) {
-            localStorage.setItem('carrito', carritoGuardado);
-          } else if (carritoActual) {
-            // Si el usuario no tenía carrito guardado pero hay uno actual, guardarlo para él
-            localStorage.setItem(`carrito_${userId}`, carritoActual);
-          }
-        } catch (error) {
-          console.error('Error al recuperar carrito al iniciar sesión:', error);
-        }
+        // La URL a la que redirigir después de iniciar sesión
+        const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || 'index.html';
         
-        // Redireccionar
+        // Agregar un pequeño retraso para permitir que se procese la notificación
         setTimeout(() => {
           window.location.href = redirectUrl;
-        }, 1500);
+        }, 1000);
       }
     }
   </script>

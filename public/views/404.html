@@ -65,8 +65,7 @@
             width: 100%;
             height: 100%;
             background: #2c3e50;
-            border-radius: 5px 15px 15px 5px;
-            transform-origin: left center;
+            border-radius: 0 5px 5px 0;
             box-shadow: 5px 5px 20px rgba(0,0,0,0.3);
             display: flex;
             justify-content: center;
@@ -75,7 +74,8 @@
             font-size: 1.8rem;
             font-weight: bold;
             z-index: 20;
-            transform: rotateY(0deg);
+            transform: rotateY(0deg) translateZ(1px);
+            transform-origin: left center;
             transition: transform 1.5s ease;
         }
         
@@ -85,7 +85,7 @@
             width: 16px;
             height: 100%;
             background: #1a252f;
-            transform: rotateY(-90deg) translateX(-16px);
+            transform: rotateY(-90deg) translateX(-16px) translateZ(1px);
         }
         
         .pages-container {
@@ -100,7 +100,7 @@
             width: 100%;
             height: 100%;
             background: white;
-            border-radius: 5px 15px 15px 5px;
+            border-radius: 0 5px 5px 0;
             padding: 1.5rem;
             display: flex;
             flex-direction: column;
@@ -266,32 +266,43 @@
             let currentPage = 0;
             let canFlip = false;
             
-            // Configuración inicial - libro cerrado
+            // Configuración inicial - libro completamente cerrado
             function initBook() {
-                // Todas las páginas comienzan giradas (cerradas)
+                // Ocultar todas las páginas (giradas 180 grados)
                 pages.forEach((page, index) => {
                     page.style.transform = 'rotateY(180deg)';
                     page.style.zIndex = pages.length - index;
                 });
                 
-                // Libro comienza completamente cerrado
+                // Posición inicial: libro completamente cerrado
                 book.style.transform = 'rotateY(-180deg)';
-                bookCover.style.transform = 'rotateY(0deg)';
+                bookCover.style.transform = 'rotateY(0deg) translateZ(1px)';
+                
+                // Ocultar puntos de navegación inicialmente
+                document.querySelector('.navigation-dots').style.opacity = '0';
+                document.querySelector('.btn-home').style.opacity = '0';
             }
             
             // Animación para abrir el libro
             function openBook() {
-                // Abrir el libro (rotar a 0 grados)
+                // 1. Rotar el libro a posición abierta
                 book.style.transform = 'rotateY(0deg)';
                 
-                // Mover la portada hacia atrás
-                bookCover.style.transform = 'rotateY(-160deg)';
-                
-                // Mostrar la primera página después de que se abra el libro
+                // 2. Mover la portada hacia atrás
                 setTimeout(() => {
-                    pages[0].style.transform = 'rotateY(0deg)';
-                    canFlip = true;
-                    startAutoFlip();
+                    bookCover.style.transform = 'rotateY(-160deg) translateZ(1px)';
+                    
+                    // 3. Mostrar la primera página
+                    setTimeout(() => {
+                        pages[0].style.transform = 'rotateY(0deg)';
+                        
+                        // Mostrar controles
+                        document.querySelector('.navigation-dots').style.opacity = '1';
+                        document.querySelector('.btn-home').style.opacity = '1';
+                        
+                        canFlip = true;
+                        startAutoFlip();
+                    }, 500);
                 }, 800);
             }
             
@@ -331,7 +342,7 @@
             
             // Inicializar y animar
             initBook();
-            setTimeout(openBook, 1000); // Comienza a abrirse después de 1 segundo
+            setTimeout(openBook, 800); // Comienza a abrirse después de 0.8 segundos
         });
     </script>
 </body>

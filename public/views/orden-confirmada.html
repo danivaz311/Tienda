@@ -7,48 +7,166 @@
   <link rel="stylesheet" href="../css/styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
-    .order-card {
-      background: #fff;
+    .orden-confirmada {
+      background-color: #fff;
       border-radius: 8px;
-      padding: 2rem;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      max-width: 600px;
-      margin: 2rem auto;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      max-width: 800px;
+      margin: 0 auto;
     }
-    
-    .order-card h2 {
-      color: #2c3e50;
-      margin-top: 0;
-      margin-bottom: 1.5rem;
+
+    .orden-header {
       border-bottom: 1px solid #eee;
-      padding-bottom: 1rem;
+      padding-bottom: 15px;
+      margin-bottom: 20px;
     }
-    
-    .error-message {
-      background-color: #f8d7da;
-      color: #721c24;
-      padding: 1rem;
-      border-radius: 4px;
-      margin: 1rem 0;
-      text-align: center;
+
+    .orden-productos {
+      margin-bottom: 30px;
     }
-    
-    .action-buttons {
+
+    .productos-lista {
       display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .orden-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .orden-item:last-child {
+      border-bottom: none;
+    }
+
+    .orden-item-info {
+      flex: 1;
+    }
+
+    .orden-item-titulo {
+      font-weight: 500;
+    }
+
+    .orden-item-precio {
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    .orden-item-subtotal {
+      font-weight: bold;
+    }
+
+    .orden-footer {
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 2px solid #eee;
+    }
+
+    .orden-total {
+      display: flex;
+      justify-content: space-between;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    .total-amount {
+      color: #2c3e50;
+    }
+
+    .orden-actions {
+      margin-top: 30px;
+      display: flex;
+      gap: 20px;
       justify-content: center;
     }
-    
-    @media (max-width: 768px) {
-      .action-buttons {
+
+    .btn-primary, .btn-secondary {
+      padding: 12px 20px;
+      border-radius: 6px;
+      font-weight: 500;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-width: 180px;
+      border: none;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-primary {
+      background-color: #3498db;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: #2980b9;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-secondary {
+      background-color: #ecf0f1;
+      color: #2c3e50;
+      border: 1px solid #ddd;
+    }
+
+    .btn-secondary:hover {
+      background-color: #dcdde1;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Estilo para los iconos en los botones */
+    .btn-primary i, .btn-secondary i {
+      font-size: 1.1rem;
+    }
+
+    .loader-container {
+      text-align: center;
+      padding: 40px;
+    }
+
+    .loader {
+      border: 5px solid #f3f3f3;
+      border-radius: 50%;
+      border-top: 5px solid #3498db;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .error-message {
+      background-color: #ffebee;
+      color: #c62828;
+      padding: 15px;
+      border-radius: 4px;
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    /* Adaptación para móviles */
+    @media (max-width: 600px) {
+      .orden-actions {
         flex-direction: column;
+        align-items: center;
       }
-      
-      .action-buttons .btn {
+
+      .btn-primary, .btn-secondary {
         width: 100%;
-        margin: 0.5rem 0;
-        text-align: center;
+        max-width: 280px;
       }
     }
   </style>
@@ -78,9 +196,42 @@
   </header>
 
   <main class="container">
-    <h1>✅ ¡Gracias por tu compra!</h1>
-    <p>Tu orden fue registrada correctamente.</p>
-    <div id="detallesOrden" class="order-details"></div>
+    <h1>¡Orden Confirmada! <i class="fas fa-check-circle"></i></h1>
+    
+    <div id="orden-loader" class="loader-container">
+      <div class="loader"></div>
+      <p>Cargando detalles de la orden...</p>
+    </div>
+    
+    <div id="orden-error" class="error-message" style="display: none;"></div>
+    
+    <div id="orden-detalles" class="orden-confirmada" style="display: none;">
+      <div class="orden-header">
+        <p><strong>Número de orden:</strong> <span id="orden-id"></span></p>
+        <p><strong>Fecha:</strong> <span id="orden-fecha"></span></p>
+      </div>
+      
+      <div class="orden-productos">
+        <h2>Productos</h2>
+        <div id="productos-lista" class="productos-lista"></div>
+      </div>
+      
+      <div class="orden-footer">
+        <div class="orden-total">
+          <span>Total pagado:</span>
+          <span id="orden-total" class="total-amount"></span>
+        </div>
+      </div>
+      
+      <div class="orden-actions">
+        <button id="volver-tienda" class="btn-primary" onclick="window.location.href='index.html'">
+          <i class="fas fa-shopping-bag"></i> Seguir comprando
+        </button>
+        <button id="ver-historial" class="btn-secondary" onclick="window.location.href='historial.html?preservecart=true'">
+          <i class="fas fa-history"></i> Ver mi historial
+        </button>
+      </div>
+    </div>
   </main>
 
   <!-- Notificación flotante -->
@@ -92,92 +243,185 @@
 
   <script src="../js/index.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      checkAuth(); // Para manejar elementos que requieren autenticación
+  document.addEventListener('DOMContentLoaded', function() {
+    checkAuth(); // Verificar autenticación
+    
+    // Obtener el ID de la orden de la URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const ordenIdUrl = urlParams.get('id');
+    
+    console.log('ID de orden desde URL:', ordenIdUrl);
+    
+    // Intentar mostrar los detalles de la orden
+    mostrarOrdenConfirmada(ordenIdUrl);
+  });
+  
+  function mostrarOrdenConfirmada(ordenIdUrl) {
+    try {
+      // 1. Intentar cargar desde localStorage
+      const ordenJson = localStorage.getItem('ultima_orden_detalles');
       
-      // Obtener datos de la orden del localStorage
-      let orden;
-      try {
-        const ordenStr = localStorage.getItem('ordenConfirmada');
-        if (ordenStr) {
-          orden = JSON.parse(ordenStr);
-          // Registrar datos para depuración
-          console.log('Datos de orden recibidos:', orden);
-        }
-      } catch (error) {
-        console.error('Error al parsear datos de orden:', error);
+      if (!ordenJson) {
+        console.error('No se encontraron datos de orden en localStorage');
+        // Si no hay datos en localStorage, intentar cargar desde la API
+        cargarDesdeAPI(ordenIdUrl);
+        return;
       }
       
-      const detalles = document.getElementById('detallesOrden');
+      const detallesOrden = JSON.parse(ordenJson);
+      console.log('Datos encontrados en localStorage:', detallesOrden);
       
-      if (orden && (orden.id || orden.ordenId || orden.orden_id)) {
-        // Extraer valores con fallbacks para diferentes estructuras de respuesta
-        const ordenId = orden.id || orden.ordenId || orden.orden_id || 'No disponible';
-        
-        // Manejar diferentes formatos de fecha
-        let fechaFormateada = 'No disponible';
-        if (orden.fecha) {
-          try {
-            fechaFormateada = new Date(orden.fecha).toLocaleString();
-          } catch (e) {
-            console.error('Error al formatear fecha:', e);
-          }
+      // Verificar si tenemos ID tanto en la URL como en los datos guardados
+      const ordenIdGuardado = detallesOrden.orden && detallesOrden.orden.id ? 
+                              detallesOrden.orden.id.toString() : null;
+      
+      console.log('ID guardado:', ordenIdGuardado, 'ID URL:', ordenIdUrl);
+      
+      // Caso 1: No hay ID en URL pero sí en localStorage
+      if (!ordenIdUrl && ordenIdGuardado) {
+        console.log('No hay ID en URL, usando datos guardados');
+        mostrarDetalles(detallesOrden);
+        return;
+      }
+      
+      // Caso 2: Hay ID en URL y coincide con localStorage
+      if (ordenIdUrl && ordenIdGuardado && ordenIdUrl === ordenIdGuardado) {
+        console.log('ID en URL coincide con datos guardados');
+        mostrarDetalles(detallesOrden);
+        return;
+      }
+      
+      // Caso 3: Hay ID en URL pero no coincide o no hay datos guardados
+      if (ordenIdUrl) {
+        console.log('ID en URL no coincide con datos guardados, intentando API');
+        cargarDesdeAPI(ordenIdUrl);
+        return;
+      }
+      
+      // Si llegamos aquí, algo está mal
+      mostrarError('No se pudo determinar qué orden mostrar');
+      
+    } catch (error) {
+      console.error('Error al procesar orden:', error);
+      mostrarError('Error al procesar los datos de la orden');
+    }
+  }
+  
+  async function cargarDesdeAPI(ordenId) {
+    if (!ordenId) {
+      mostrarError('No se especificó un ID de orden');
+      return;
+    }
+    
+    const token = localStorage.getItem('token');
+    if (!token) {
+      mostrarError('Necesitas iniciar sesión para ver los detalles');
+      return;
+    }
+    
+    try {
+      console.log('Cargando orden desde API:', ordenId);
+      document.getElementById('orden-loader').style.display = 'block';
+      
+      const response = await fetch(`/api/orden/${ordenId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
         }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Error al obtener la orden desde el servidor');
+      }
+      
+      const data = await response.json();
+      console.log('Datos recibidos de API:', data);
+      
+      // Adaptar formato de API al formato esperado
+      const ordenFormateada = {
+        orden: {
+          id: data.orden.id,
+          fecha: data.orden.fecha,
+          total: data.total
+        },
+        carrito: data.items.map(item => ({
+          id: item.libro_id,
+          titulo: item.titulo,
+          precio: item.precio_unitario,
+          cantidad: item.cantidad
+        }))
+      };
+      
+      mostrarDetalles(ordenFormateada);
+      
+    } catch (error) {
+      console.error('Error al cargar desde API:', error);
+      mostrarError(`Error al cargar desde el servidor: ${error.message}`);
+    }
+  }
+  
+  function mostrarDetalles(datos) {
+    console.log('Mostrando detalles:', datos);
+    
+    // Mostrar el número de orden
+    document.getElementById('orden-id').textContent = datos.orden.id || 'No disponible';
+    
+    // Mostrar la fecha
+    let fechaTexto = 'Fecha no disponible';
+    try {
+      if (datos.orden.fecha) {
+        const fecha = new Date(datos.orden.fecha);
+        fechaTexto = fecha.toLocaleDateString() + ' ' + fecha.toLocaleTimeString();
+      }
+    } catch (e) {
+      console.error('Error al formatear fecha:', e);
+    }
+    document.getElementById('orden-fecha').textContent = fechaTexto;
+    
+    // Mostrar el total
+    const total = typeof datos.orden.total === 'number' ? datos.orden.total : 
+      (datos.carrito || []).reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+    document.getElementById('orden-total').textContent = `$${total.toFixed(2)}`;
+    
+    // Mostrar los productos
+    const productosContainer = document.getElementById('productos-lista');
+    productosContainer.innerHTML = '';
+    
+    const productos = datos.carrito || [];
+    if (productos.length === 0) {
+      productosContainer.innerHTML = '<div class="mensaje">No hay detalles de productos disponibles</div>';
+    } else {
+      productos.forEach(producto => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'orden-item';
         
-        // Calcular/mostrar total
-        let totalStr = '';
-        if (orden.total) {
-          totalStr = `<p><strong>Total:</strong> $${typeof orden.total === 'number' ? orden.total.toFixed(2) : orden.total}</p>`;
-        }
+        const precio = parseFloat(producto.precio);
+        const cantidad = parseInt(producto.cantidad);
+        const subtotal = precio * cantidad;
         
-        // Mensaje personalizado
-        const mensajeStr = orden.mensaje ? `<p><strong>Mensaje:</strong> ${orden.mensaje}</p>` : '';
-        
-        // Construir HTML de detalles de orden
-        detalles.innerHTML = `
-          <div class="order-card">
-            <h2><i class="fas fa-check-circle" style="color: #2ecc71;"></i> Pedido Confirmado</h2>
-            <p><strong>ID de orden:</strong> ${ordenId}</p>
-            <p><strong>Fecha:</strong> ${fechaFormateada}</p>
-            ${mensajeStr}
-            ${totalStr}
+        itemDiv.innerHTML = `
+          <div class="orden-item-info">
+            <div class="orden-item-titulo">${producto.titulo}</div>
+            <div class="orden-item-precio">$${precio.toFixed(2)} x ${cantidad}</div>
           </div>
-          
-          <div class="action-buttons" style="margin-top: 2rem;">
-            <a href="index.html" class="btn" style="background-color: #3498db; color: white; padding: 10px 15px; border-radius: 4px; text-decoration: none; margin-right: 10px;">
-              <i class="fas fa-home"></i> Volver a Inicio
-            </a>
-            <a href="historial.html" class="btn" style="background-color: #2ecc71; color: white; padding: 10px 15px; border-radius: 4px; text-decoration: none;">
-              <i class="fas fa-history"></i> Ver Historial
-            </a>
-          </div>
+          <div class="orden-item-subtotal">$${subtotal.toFixed(2)}</div>
         `;
-      } else {
-        // Si no hay datos de orden, mostrar mensaje amigable
-        document.querySelector('main').innerHTML = `
-          <h1>Información no disponible</h1>
-          <p class="error-message">No hay datos de la orden o ha ocurrido un error al procesarla.</p>
-          <div style="margin-top: 2rem;">
-            <a href="index.html" class="btn" style="background-color: #3498db; color: white; padding: 10px 15px; border-radius: 4px; text-decoration: none;">
-              <i class="fas fa-home"></i> Volver a Inicio
-            </a>
-          </div>
-        `;
-      }
-      
-      // Mostrar notificación de éxito si venimos de carrito.html
-      if (document.referrer.includes('carrito.html')) {
-        const notification = document.getElementById('notification');
-        if (notification) {
-          notification.textContent = '¡Tu compra ha sido registrada con éxito!';
-          notification.classList.add('show');
-          
-          setTimeout(() => {
-            notification.classList.remove('show');
-          }, 3000);
-        }
-      }
-    });
+        
+        productosContainer.appendChild(itemDiv);
+      });
+    }
+    
+    // Ocultar loader y mostrar detalles
+    document.getElementById('orden-loader').style.display = 'none';
+    document.getElementById('orden-detalles').style.display = 'block';
+  }
+  
+  function mostrarError(mensaje) {
+    console.error('Error:', mensaje);
+    document.getElementById('orden-loader').style.display = 'none';
+    const errorElement = document.getElementById('orden-error');
+    errorElement.textContent = mensaje;
+    errorElement.style.display = 'block';
+  }
   </script>
 </body>
 </html>

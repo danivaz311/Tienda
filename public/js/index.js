@@ -46,12 +46,24 @@ document.addEventListener('DOMContentLoaded', function () {
   if (logoutLink) {
     logoutLink.addEventListener('click', function (e) {
       e.preventDefault();
+      
+      // Preservar el carrito antes de cerrar sesión
+      //gestionarCarritoAlCerrarSesion();
+      
+      // Eliminar el token
       localStorage.removeItem('token');
-      localStorage.removeItem('carrito');
-      showNotification('Sesión cerrada correctamente');
+      
+      // Quitar clases del body
+      document.body.classList.remove('logged-in');
+      document.body.classList.remove('admin-user');
+      
+      // Mostrar notificación
+      showNotification('Has cerrado sesión correctamente');
+      
+      // Redirigir a la página principal o recargar
       setTimeout(() => {
         window.location.href = 'index.html';
-      }, 1000);
+      }, 1500);
     });
   }
 
@@ -84,6 +96,9 @@ function checkAuth() {
         
         bienvenida.innerHTML = saludo;
       }
+      
+      // NUEVO: Sincronizar el carrito cuando se verifica la autenticación
+      sincronizarCarritoAlIniciarSesion(token);
       
     } catch (error) {
       console.error('Error al decodificar token:', error);
@@ -179,10 +194,10 @@ function mostrarLibros(libros) {
 // Añadir estas funciones para gestionar mejor el carrito:
 
 function guardarCarrito(carrito) {
-  // Guardar carrito en localStorage
+  // Guardar carrito en localStorage general (para todos)
   localStorage.setItem('carrito', JSON.stringify(carrito));
   
-  // Si el usuario está logueado, también guardar el carrito con su ID
+  // Si hay usuario logueado, guardar también con su ID
   const token = localStorage.getItem('token');
   
   if (token) {
@@ -192,19 +207,22 @@ function guardarCarrito(carrito) {
       const userId = payload.id;
       
       // Guardar carrito asociado al usuario
-      localStorage.setItem(`carrito_${userId}`, JSON.stringify(carrito));
+      if (userId) {
+        localStorage.setItem(`carrito_${userId}`, JSON.stringify(carrito));
+        console.log(`Carrito guardado para usuario ID: ${userId}`, carrito);
+      }
     } catch (error) {
-      console.error('Error al guardar carrito para usuario:', error);
+      console.error('Error al guardar carrito específico del usuario:', error);
     }
   }
-  
-  // Actualizar contador de items
-  actualizarContadorCarrito();
 }
 
 function obtenerCarrito() {
+  console.log("Obteniendo carrito...");
+  
   // Intentar obtener carrito del usuario actual
   const token = localStorage.getItem('token');
+  let carrito = [];
   
   if (token) {
     try {
@@ -212,48 +230,93 @@ function obtenerCarrito() {
       const payload = JSON.parse(atob(token.split('.')[1]));
       const userId = payload.id;
       
+      console.log(`Usuario identificado con ID: ${userId}`);
+      
       // Intentar obtener el carrito específico del usuario
       const carritoUsuario = localStorage.getItem(`carrito_${userId}`);
       
       if (carritoUsuario) {
-        // Si existe un carrito para este usuario, usarlo
-        localStorage.setItem('carrito', carritoUsuario);
-        return JSON.parse(carritoUsuario);
+        console.log("Carrito de usuario encontrado");
+        carrito = JSON.parse(carritoUsuario);
+      } else {
+        console.log("No hay carrito guardado para este usuario");
+        
+        // Si no hay carrito de usuario pero sí un carrito anónimo,
+        // asignar ese carrito al usuario
+        const carritoAnonimo = localStorage.getItem('carrito');
+        if (carritoAnonimo) {
+          carrito = JSON.parse(carritoAnonimo);
+          console.log("Asignando carrito anónimo al usuario:", carrito);
+          
+          // Guardar este carrito para el usuario
+          localStorage.setItem(`carrito_${userId}`, JSON.stringify(carrito));
+        } else {
+          console.log("No hay carrito anónimo, empezando con carrito vacío");
+        }
       }
     } catch (error) {
-      console.error('Error al recuperar carrito de usuario:', error);
+      console.error('Error al obtener carrito de usuario:', error);
+      
+      // Si hay error, intentar obtener el carrito general
+      const carritoAnonimo = localStorage.getItem('carrito');
+      if (carritoAnonimo) {
+        carrito = JSON.parse(carritoAnonimo);
+      }
+    }
+  } else {
+    // Usuario no autenticado
+    console.log("Usuario no autenticado, usando carrito anónimo");
+    const carritoAnonimo = localStorage.getItem('carrito');
+    if (carritoAnonimo) {
+      carrito = JSON.parse(carritoAnonimo);
     }
   }
   
-  // Si no hay carrito específico del usuario, usar el genérico
-  return JSON.parse(localStorage.getItem('carrito')) || [];
+  console.log("Carrito final obtenido:", carrito);
+  return carrito || [];
 }
 
-// Agregar al carrito
+// Simplificar esta función para evitar problemas
+
 function agregarAlCarrito(id, titulo, precio) {
-  let carrito = obtenerCarrito();
+  console.log(`Agregando libro: ID=${id}, Título=${titulo}, Precio=${precio}`);
   
-  // Verificar si el libro ya está en el carrito
-  const libroExistente = carrito.find(item => item.id === id);
+  // Obtener carrito del localStorage (no usar cargarCarrito para evitar problemas)
+  let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
   
-  if (libroExistente) {
-    // Si el libro ya está en el carrito, aumentar cantidad
-    libroExistente.cantidad += 1;
+  // Verificar si el producto ya está en el carrito
+  const index = carrito.findIndex(item => item.id === id);
+  
+  if (index !== -1) {
+    // Si ya existe, incrementar cantidad
+    carrito[index].cantidad = (carrito[index].cantidad || 1) + 1;
+    console.log(`Incrementada cantidad de "${titulo}" a ${carrito[index].cantidad}`);
   } else {
-    // Si el libro no está en el carrito, agregarlo con cantidad 1
-    carrito.push({
-      id,
-      titulo,
-      precio,
-      cantidad: 1
-    });
+    // Si no existe, agregar nuevo item con cantidad 1
+    carrito.push({ id, titulo, precio, cantidad: 1 });
+    console.log(`Añadido nuevo libro "${titulo}" al carrito`);
   }
   
-  // Guardar carrito actualizado
-  guardarCarrito(carrito);
+  // Guardar en localStorage
+  localStorage.setItem('carrito', JSON.stringify(carrito));
+  
+  // Guardar también en el carrito del usuario si está autenticado
+  const token = localStorage.getItem('token');
+  if (token) {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      localStorage.setItem(`carrito_${payload.id}`, JSON.stringify(carrito));
+    } catch (error) {
+      console.error('Error al guardar en carrito de usuario:', error);
+    }
+  }
+  
+  // Actualizar contador visual
+  const totalItems = carrito.reduce((total, item) => total + (item.cantidad || 1), 0);
+  actualizarContadorCarrito(totalItems);
   
   // Mostrar notificación
-  showNotification(`"${titulo}" agregado al carrito`);
+  showNotification(`${titulo} agregado al carrito`);
 }
 
 // Mostrar notificación
@@ -272,39 +335,60 @@ function showNotification(message) {
 }
 
 // Función opcional para actualizar un contador de items en el carrito
-function actualizarContadorCarrito() {
-  const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
-  const contadorElement = document.getElementById('cart-count');
-  
-  if (contadorElement) {
-    const totalItems = carrito.reduce((total, item) => total + item.cantidad, 0);
-    contadorElement.textContent = totalItems;
-    contadorElement.style.display = totalItems > 0 ? 'inline-block' : 'none';
+function actualizarContadorCarrito(cantidad) {
+  // Si no se proporciona una cantidad, calcularla desde el carrito
+  if (cantidad === undefined) {
+    const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+    cantidad = carrito.reduce((total, item) => total + (item.cantidad || 1), 0);
   }
+  
+  const contadores = document.querySelectorAll('.cart-badge');
+  contadores.forEach(contador => {
+    contador.textContent = cantidad;
+    contador.style.display = cantidad > 0 ? 'inline-block' : 'none';
+  });
+  
+  console.log(`Contador del carrito actualizado a: ${cantidad}`);
 }
 
-// Función de cerrar sesión
+// Reemplazar la función handleLogout
 
 function handleLogout(e) {
   if (e) e.preventDefault();
   
-  // Guardar referencia al carrito antes de cerrar sesión
-  const carrito = localStorage.getItem('carrito');
+  // Guardar el carrito del usuario antes de cerrar sesión
+  const token = localStorage.getItem('token');
+  const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
   
-  // Eliminar SOLO el token y no otros datos
-  localStorage.removeItem('token');
-  
-  // Restaurar el carrito después de eliminar el token
-  if (carrito) {
-    localStorage.setItem('carrito', carrito);
+  if (token && carrito.length > 0) {
+    try {
+      // Extraer ID del usuario del token
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const userId = payload.id;
+      
+      // Guardar el carrito actual para este usuario antes de eliminarlo
+      localStorage.setItem(`carrito_${userId}`, JSON.stringify(carrito));
+      console.log(`Carrito guardado para usuario ID ${userId} antes de cerrar sesión`);
+    } catch (error) {
+      console.error('Error al guardar carrito al cerrar sesión:', error);
+    }
   }
   
+  // Eliminar token
+  localStorage.removeItem('token');
+  
+  // IMPORTANTE: Vaciar el carrito anónimo para que esté vacío al cerrar sesión
+  localStorage.removeItem('carrito');
+  
+  // Actualizar contador del carrito
+  actualizarContadorCarrito(0);
+  
+  // Actualizar UI
   showNotification('Has cerrado sesión correctamente');
-  
-  // Actualizar la interfaz
   document.body.classList.remove('logged-in');
+  document.body.classList.remove('admin-user');
   
-  // Redirigir a la página principal después de un breve retraso
+  // Redirigir a la página principal
   setTimeout(() => {
     window.location.href = 'index.html';
   }, 1500);
@@ -318,14 +402,19 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   // Si venimos de orden-confirmada.html, verificar si queda algún residuo en el carrito
-  if (document.referrer.includes('orden-confirmada.html')) {
-    // Doble verificación para asegurar que el carrito está vacío
+  // pero solo si estamos en la página principal, no en historial
+  if (document.referrer.includes('orden-confirmada.html') && 
+      !window.location.pathname.includes('historial.html')) {
+    console.log('Viniendo de orden confirmada a página no-historial, limpiando carrito');
     limpiarCarrito();
   }
   
+  // Limpiar posibles duplicados al cargar cualquier página
+  //limpiarDuplicadosCarrito();
+  
   // Resto del código...
   checkAuth();
-  actualizarContadorCarrito();
+  actualizarInterfaz();
 });
 
 // Añade esta función a tu archivo index.js
@@ -358,3 +447,119 @@ function vaciarCarrito() {
     mostrarCarrito(); // Si estás en la página de carrito
   }
 }
+
+// Añadir estas funciones para manejar el carrito durante el inicio/cierre de sesión
+
+// Cuando el usuario inicia sesión
+function gestionarCarritoAlIniciarSesion() {
+  // Esta función ahora solo actualiza el contador
+  actualizarContadorCarrito();
+  console.log('Contador del carrito actualizado después de iniciar sesión');
+}
+
+
+
+// Mejora la función cargarCarrito para que recupere el carrito específico del usuario
+
+
+// Reemplazar función sincronizarCarritoAlIniciarSesion
+
+function sincronizarCarritoAlIniciarSesion(token) {
+  try {
+    console.log('Verificando carrito después del login...');
+    
+    // Extraer información del usuario del token
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const userId = payload.id;
+    
+    // Verificar si existe un carrito guardado para este usuario
+    const carritoUsuario = localStorage.getItem(`carrito_${userId}`);
+    
+    if (carritoUsuario) {
+      // Si el usuario tiene un carrito guardado, usamos ese
+      console.log('Usando carrito guardado del usuario');
+      localStorage.setItem('carrito', carritoUsuario);
+      
+      // Actualizar la UI
+      const carritoParsed = JSON.parse(carritoUsuario);
+      const totalItems = carritoParsed.reduce((total, item) => total + item.cantidad, 0);
+      actualizarContadorCarrito(totalItems);
+    } else {
+      // Si el usuario no tiene un carrito guardado, guardamos el actual
+      const carritoActual = localStorage.getItem('carrito');
+      if (carritoActual) {
+        localStorage.setItem(`carrito_${userId}`, carritoActual);
+        console.log('Guardando carrito actual para el usuario');
+      }
+    }
+  } catch (error) {
+    console.error('Error al gestionar carrito después del login:', error);
+  }
+}
+
+// Añadir esta función para emergencias
+
+function emergenciaLimpiarCarrito() {
+  localStorage.removeItem('carrito');
+  
+  // Limpiar también los carritos de usuarios
+  const keys = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key.startsWith('carrito_')) {
+      keys.push(key);
+    }
+  }
+  
+  // Eliminar todas las claves de carritos
+  keys.forEach(key => localStorage.removeItem(key));
+  
+  // Actualizar contador
+  actualizarContadorCarrito(0);
+  
+  // Recargar página
+  location.reload();
+  
+  console.log('EMERGENCIA: Todos los carritos han sido eliminados!');
+}
+
+// Mejora con verificación adicional para decidir si limpiar el carrito
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Para casos de emergencia: detectar si el carrito tiene demasiados items
+  const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+  const totalItems = carrito.reduce((total, item) => total + (item.cantidad || 1), 0);
+  
+  if (totalItems > 100) {  // Si hay más de 100 items, algo anda mal
+    console.warn('¡ALERTA! Carrito con demasiados items:', totalItems);
+    if (confirm('Se detectaron demasiados productos en el carrito. ¿Desea reiniciarlo?')) {
+      limpiarCarrito();
+      location.reload();
+    }
+  }
+  
+  // Determinar si debemos limpiar el carrito cuando venimos de orden confirmada
+  if (document.referrer.includes('orden-confirmada.html')) {
+    // Solo limpiar si:
+    // 1. No estamos en la página de historial
+    // 2. No estamos en la página de carrito
+    // 3. No hay una bandera específica para prevenir la limpieza
+    const isHistorialPage = window.location.pathname.includes('historial.html');
+    const isCarritoPage = window.location.pathname.includes('carrito.html');
+    const shouldPreventClearing = window.preventCartClear === true;
+    
+    if (!isHistorialPage && !isCarritoPage && !shouldPreventClearing) {
+      console.log('Limpiando carrito después de orden confirmada');
+      limpiarCarrito();
+    } else {
+      console.log('Manteniendo carrito intacto después de orden confirmada en página protegida');
+    }
+  }
+  
+  // Actualizaciones básicas
+  actualizarContadorCarrito();
+  checkAuth();
+  cargarLibros();
+  
+  // Resto del código...
+});
