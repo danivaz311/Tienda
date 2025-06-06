@@ -509,7 +509,12 @@
           showNotification('Libro eliminado correctamente');
           cargarLibros();
         } else {
-          const data = await response.json();
+          let data = {};
+          try {
+            data = await response.json();
+          } catch (e) {
+            // Si no hay cuerpo, ignora el error
+          }
           showNotification(data.error || 'Error al eliminar libro');
         }
       } catch (error) {
