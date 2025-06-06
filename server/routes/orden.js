@@ -34,6 +34,11 @@ router.post('/', authMiddleware.verificarToken, async (req, res) => {
          VALUES ($1, $2, $3, $4)`,
         [ordenId, item.id, item.cantidad, item.precio]
       );
+      // Disminuir el stock del libro
+      await client.query(
+        'UPDATE libros SET stock = stock - $1 WHERE id = $2 AND stock >= $1',
+        [item.cantidad, item.id]
+      );
     }
 
     await client.query('COMMIT');
