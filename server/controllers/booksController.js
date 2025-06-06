@@ -70,17 +70,18 @@ const updateBook = async (req, res) => {
 // Eliminar un libro
 const deleteBook = async (req, res) => {
   const { id } = req.params;
-  
   try {
-    const deleted = await Book.delete(id);
-    
-    if (!deleted) {
+    const result = await Book.delete(id);
+    if (!result || result.rowCount === 0) {
       return res.status(404).json({ error: 'Libro no encontrado' });
     }
-    
     res.json({ mensaje: 'Libro eliminado correctamente' });
   } catch (err) {
     console.error(`Error al eliminar libro con id ${id}:`, err);
+    // Manejo especial para error de clave foránea
+    if (err.code === '23503') {
+      return res.status(400).json({ error: 'No se puede eliminar el libro porque está relacionado con otras entidades.' });
+    }
     res.status(500).json({ error: 'Error al eliminar el libro' });
   }
 };

@@ -31,3 +31,18 @@ CREATE TABLE IF NOT EXISTS detalle_orden (
   cantidad INTEGER,
   precio_unitario NUMERIC
 );
+
+ALTER TABLE detalle_orden
+  DROP CONSTRAINT IF EXISTS detalle_orden_libro_id_fkey,
+  ADD CONSTRAINT detalle_orden_libro_id_fkey
+  FOREIGN KEY (libro_id) REFERENCES libros(id) ON DELETE CASCADE;
+
+ALTER TABLE carrito
+DROP CONSTRAINT IF EXISTS carrito_libro_id_fkey,
+ADD CONSTRAINT carrito_libro_id_fkey
+  FOREIGN KEY (libro_id) REFERENCES libros(id) ON DELETE CASCADE;
+
+ALTER TABLE ordenes_detalle
+DROP CONSTRAINT IF EXISTS ordenes_detalle_libro_id_fkey,
+ADD CONSTRAINT ordenes_detalle_libro_id_fkey
+  FOREIGN KEY (libro_id) REFERENCES libros(id) ON DELETE CASCADE;

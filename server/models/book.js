@@ -105,10 +105,9 @@ class Book {
   // Eliminar un libro
   static async delete(id) {
     try {
-      const result = await db.query('DELETE FROM libros WHERE id = $1 RETURNING *', [id]);
-      return result.rowCount > 0;
+      const result = await db.query('DELETE FROM libros WHERE id = $1', [id]);
+      return result;
     } catch (error) {
-      console.error('Error al eliminar libro:', error);
       throw error;
     }
   }
