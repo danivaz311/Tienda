@@ -232,6 +232,17 @@
     function vaciarCarrito() {
       if (confirm('¿Estás seguro de que deseas vaciar el carrito?')) {
         localStorage.removeItem('carrito');
+        // También eliminar el carrito del usuario autenticado
+        const token = localStorage.getItem('token');
+        if (token) {
+          try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            const userId = payload.id;
+            localStorage.removeItem(`carrito_${userId}`);
+          } catch (error) {
+            console.error('Error al limpiar carrito específico del usuario:', error);
+          }
+        }
         showNotification("Carrito vaciado correctamente");
         mostrarCarrito();
       }

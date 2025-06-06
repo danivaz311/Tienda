@@ -560,6 +560,5 @@ document.addEventListener('DOMContentLoaded', function() {
   actualizarContadorCarrito();
   checkAuth();
   cargarLibros();
-  
-  // Resto del código...
+
 });
