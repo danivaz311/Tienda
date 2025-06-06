@@ -155,16 +155,15 @@ function mostrarLibros(libros) {
   container.innerHTML = '';
 
   libros.forEach(libro => {
-    // Construir la URL de la imagen correctamente
     let imagenUrl = libro.imagen;
-    
-    if (imagenUrl && imagenUrl.startsWith('/uploads/')) {
-      console.log('URL de imagen relativa:', imagenUrl);
-    } else if (imagenUrl) {
-      console.log('URL de imagen externa:', imagenUrl);
-    } else {
-      imagenUrl = 'https://via.placeholder.com/150x200?text=Sin+Imagen';
-      console.log('Sin imagen, usando placeholder');
+
+    // Si solo es el nombre del archivo, construye la ruta completa
+    if (imagenUrl && !imagenUrl.startsWith('http') && !imagenUrl.startsWith('/uploads/')) {
+      imagenUrl = '/uploads/' + imagenUrl;
+    }
+
+    if (!imagenUrl) {
+      imagenUrl = '/img/error-imagen.png';
     }
 
     // Crear elemento del libro con estructura mejorada
@@ -175,7 +174,7 @@ function mostrarLibros(libros) {
         <img 
           src="${imagenUrl}" 
           alt="${libro.titulo}" 
-          onerror="this.src='https://via.placeholder.com/150x200?text=Error+Imagen'">
+          onerror="this.src='/img/error-imagen.png'">
       </div>
       <div class="book-info">
         <h3 class="book-title">${libro.titulo}</h3>

@@ -23,6 +23,8 @@ app.use(express.urlencoded({ extended: true }));
 
 // Servir archivos estáticos
 app.use(express.static('public'));
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+app.use('/img', express.static(path.join(__dirname, 'public/img')));
 
 // Ruta API básica
 app.get('/api', (req, res) => {
