@@ -139,6 +139,15 @@
       align-items: center;
     }
 
+    .welcome-admin h1 {
+      color: white; /* Cambia el color a azul */
+    }
+
+    .welcome-admin h1 i {
+      color: white; /* Cambia el color del icono a naranja */
+      margin-right: 8px;
+    }
+
     .tabs {
       display: flex;
       gap: 1rem;
@@ -380,7 +389,7 @@
           return;
         }
 
-        bienvenida.innerHTML = `<span>¡Hola, <strong>${payload.nombre || payload.correo}</strong>! <button onclick="cerrarSesion()" class="btn-sm"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</button></span>`;
+        bienvenida.innerHTML = `<span>¡Hola, <strong>${payload.nombre || payload.correo}</strong>!</span>`;
       } catch (error) {
         showNotification('Error de autenticación. Por favor, inicia sesión nuevamente.');
         setTimeout(() => {
@@ -662,7 +671,6 @@
           if (data.url) {
             // Guardar la URL devuelta por el servidor
             imagenInput.value = data.url;
-            document.getElementById('imagenUrlDebug').textContent = data.url;
             fileInfo.textContent = 'Imagen subida correctamente';
             fileInfo.className = 'file-info upload-success';
             showNotification('Imagen subida correctamente');
