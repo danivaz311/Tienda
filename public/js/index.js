@@ -180,6 +180,7 @@ function mostrarLibros(libros) {
       <div class="book-info">
         <h3 class="book-title">${libro.titulo}</h3>
         <p class="book-author">Por: ${libro.autor}</p>
+        <p class="book-description">${libro.descripcion || ''}</p>
         <p class="book-price">$${libro.precio}</p>
         <button class="btn-add-cart" onclick="agregarAlCarrito(${libro.id}, '${libro.titulo}', ${libro.precio})">
           <i class="fas fa-shopping-cart"></i> Agregar al carrito
